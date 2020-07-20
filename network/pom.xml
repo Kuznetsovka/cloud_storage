@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>cloud_client</artifactId>
+    <artifactId>network</artifactId>
     <build>
         <plugins>
             <plugin>
@@ -22,20 +22,6 @@
             </plugin>
         </plugins>
     </build>
-    <dependencies>
-        <dependency>
-            <groupId>com.Geekbrains</groupId>
-            <artifactId>network</artifactId>
-            <version>1</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.Geekbrains</groupId>
-            <artifactId>common</artifactId>
-            <version>1</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
 
 
 </project>
