@@ -13,6 +13,17 @@
         <module>cloud_server</module>
         <module>common</module>
     </modules>
-
-
+    <build>
+      <plugins>
+          <plugin>
+              <groupId> org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <version>3.8.1</version>
+              <configuration>
+                  <sorce>8</sorce>
+                  <target>8</target>
+              </configuration>
+          </plugin>
+      </plugins>
+    </build>
 </project>
