@@ -4,11 +4,12 @@ import network.ServerSocketThread;
 import network.ServerSocketThreadListener;
 import network.SocketThread;
 import network.SocketThreadListener;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
+
+import static network.FileUtility.createDirectory;
 
 public class CloudServer implements ServerSocketThreadListener, SocketThreadListener {
 
@@ -24,7 +25,7 @@ public class CloudServer implements ServerSocketThreadListener, SocketThreadList
         if (server == null || !server.isAlive()) {
             server = new ServerSocketThread(this, "Server", port, 2000);
         } else {
-            putLog("Server already started!");
+            System.out.println ("Server already started!");
         }
     }
 
@@ -32,12 +33,8 @@ public class CloudServer implements ServerSocketThreadListener, SocketThreadList
         if (server != null && server.isAlive()) {
             server.interrupt(); //null.interrupt();
         } else {
-            putLog("Server is not running");
+            System.out.println ("Server is not running");
         }
-    }
-
-    private void putLog(String msg) {
-        listener.onCloudServerMessage(msg);
     }
 
     /**
@@ -46,13 +43,13 @@ public class CloudServer implements ServerSocketThreadListener, SocketThreadList
 
     @Override
     public void onServerStart(ServerSocketThread thread) {
-        putLog("Server started");
+        System.out.println ("Server started");
   //
     }
 
     @Override
     public void onServerStop(ServerSocketThread thread) {
-        putLog("Server stopped");
+        System.out.println ("Server stopped");
         for (int i = 0; i < clients.size(); i++) {
             clients.get(i).close();
         }
@@ -61,7 +58,7 @@ public class CloudServer implements ServerSocketThreadListener, SocketThreadList
 
     @Override
     public void onServerSocketCreated(ServerSocketThread thread, ServerSocket server) {
-        putLog("Server socket created");
+        System.out.println ("Server socket created");
     }
 
     @Override
@@ -69,7 +66,7 @@ public class CloudServer implements ServerSocketThreadListener, SocketThreadList
 
     @Override
     public void onSocketAccepted(ServerSocketThread thread, ServerSocket server, Socket socket) {
-        putLog("Client connected");
+        System.out.println ("Client connected " + thread.getName ());
         String name = "Socket Thread " + socket.getInetAddress() + ":" + socket.getPort();
         new ClientThread(this, name, socket);
     }
@@ -85,7 +82,7 @@ public class CloudServer implements ServerSocketThreadListener, SocketThreadList
 
     @Override
     public synchronized void onSocketStart(SocketThread thread, Socket socket) {
-        putLog("Client connected");
+        System.out.println ("Client connected");
     }
 
     @Override
@@ -96,7 +93,7 @@ public class CloudServer implements ServerSocketThreadListener, SocketThreadList
 
     @Override
     public synchronized void onSocketReady(SocketThread thread, Socket socket) {
-        putLog("Client is ready");
+        System.out.println ("Client is ready");
         clients.add(thread);
     }
 
@@ -112,30 +109,6 @@ public class CloudServer implements ServerSocketThreadListener, SocketThreadList
 
     @Override
     public void onUploadFile(SocketThread socketThread, Socket socket, String fileName) {
-        String toPath = "./common/" + socketThread.getName () + "/";
-        File file = new File(toPath + "" + fileName);
-        // ./common/server/ - для сервера
-        // ./common/client/id/ - для юзера
-        try {
-            DataInputStream in = new DataInputStream (socket.getInputStream());
-            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-            file.createNewFile();
-            try (FileOutputStream fos = new FileOutputStream(file)) {
-                byte[] buffer = new byte[8192];
-                while (true) {
-                    int r = in.read(buffer);
-                    if (r == -1) break;
-                    out.write(buffer, 0, r);
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace ();
-            } catch (IOException e) {
-                e.printStackTrace ();
-            }
-        } catch (IOException e) {
-            e.printStackTrace ();
-        }
-        System.out.println("File uploaded!");
     }
 
     @Override

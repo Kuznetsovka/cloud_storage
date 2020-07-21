@@ -1,7 +1,6 @@
-package IO;
+package network;
 
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 
 public class FileUtility {
@@ -35,14 +34,15 @@ public class FileUtility {
         }
     }
 
-    public synchronized void sendFile(Socket socket, File file) throws IOException {
+    public synchronized void sendFile(Socket socket, File file, int id) throws IOException {
         InputStream is = new FileInputStream(file);
         long size = file.length();
         int count = (int) (size / 8192) / 10, readBuckets = 0;
+        count = (size>0 && count==0)?1:count;
         // /==========/
         try(DataOutputStream os = new DataOutputStream(socket.getOutputStream())) {
             byte [] buffer = new byte[8192];
-            os.writeUTF(file.getName());
+            os.writeUTF(file.getName() + "##" + id);
             System.out.print("/");
             while (is.available() > 0) {
                 int readBytes = is.read(buffer);

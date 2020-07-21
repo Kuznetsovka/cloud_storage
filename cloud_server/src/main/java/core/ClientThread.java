@@ -12,6 +12,7 @@ public class ClientThread extends SocketThread {
 
     public ClientThread(SocketThreadListener listener, String name, Socket socket) {
         super(listener, name, socket);
+        this.nickname = name;
     }
 
     public String getNickname() {
@@ -34,16 +35,16 @@ public class ClientThread extends SocketThread {
     void authAccept(String nickname) {
         isAuthorized = true;
         this.nickname = nickname;
-        sendMessage("Client auth");
+        System.out.println ("Client auth" + getName ());
     }
 
     void authFail() {
-        sendMessage("Client deny");
+        System.out.println ("Client deny" + getName ());
         close();
     }
 
     void msgFormatError(String msg) {
-        sendMessage("Error");
+        System.out.println ("Error" + getName ());
         close();
     }
 
