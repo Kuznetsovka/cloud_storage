@@ -4,7 +4,11 @@ import network.ServerSocketThread;
 import network.ServerSocketThreadListener;
 import network.SocketThread;
 import network.SocketThreadListener;
-import java.io.*;
+
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
@@ -108,7 +112,26 @@ public class CloudServer implements ServerSocketThreadListener, SocketThreadList
     }
 
     @Override
-    public void onUploadFile(SocketThread socketThread, Socket socket, String fileName) {
+    public void onUploadFile(SocketThread socketThread, Socket socket, String fileName, int id, DataInputStream in) {
+        String dirName = "./common/server/user";
+        System.out.println("Client "+ id + " accepted!");
+        System.out.println("fileName: " + fileName);
+        try {
+            createDirectory(dirName + id + "/");
+            File file = new File(dirName + id + "/" + fileName);
+            file.createNewFile();
+            try (FileOutputStream os = new FileOutputStream(file)) {
+                byte[] buffer = new byte[8192];
+                while (true) {
+                    int r = in.read(buffer);
+                    if (r == -1) break;
+                    os.write(buffer, 0, r);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace ();
+        }
+        System.out.println("File uploaded!");
     }
 
     @Override
