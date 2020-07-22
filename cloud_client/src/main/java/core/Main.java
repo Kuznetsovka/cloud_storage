@@ -1,7 +1,5 @@
 package core;
 
-import javax.swing.*;
-
 public class Main  {
     static int id;
     public static void main(String[] args) {

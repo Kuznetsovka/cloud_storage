@@ -6,7 +6,6 @@ import network.SocketThreadListener;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Scanner;
 
 
 public class Client extends FileUtility implements SocketThreadListener {
@@ -18,7 +17,6 @@ public class Client extends FileUtility implements SocketThreadListener {
         this.id = id;
         connect();
         upload(pathFile);
-        //Scanner sc = new Scanner(System.in);
         //download();
     }
 

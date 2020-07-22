@@ -134,14 +134,4 @@ public class CloudServer implements ServerSocketThreadListener, SocketThreadList
         exception.printStackTrace();
     }
 
-    private synchronized ClientThread findClientByNickname(String nickname) {
-        for (int i = 0; i < clients.size(); i++) {
-            ClientThread client = (ClientThread) clients.get(i);
-            if (!client.isAuthorized()) continue;
-            if (client.getNickname().equals(nickname))
-                return client;
-        }
-        return null;
-    }
-
 }
