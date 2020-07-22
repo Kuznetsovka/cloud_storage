@@ -85,11 +85,6 @@ public class Client extends FileUtility implements SocketThreadListener {
     }
 
     @Override
-    public void onReceiveString(SocketThread thread, Socket socket, String msg) {
-     //
-    }
-
-    @Override
     public void onUploadFile(SocketThread socketThread, Socket socket, String fileName, int id, DataInputStream in) {
         String dirName = "./common/users/user";
         System.out.println("Client "+ id + " accepted!");
@@ -114,6 +109,6 @@ public class Client extends FileUtility implements SocketThreadListener {
 
     @Override
     public void onSocketException(SocketThread thread, Exception exception) {
-        //showException(thread, exception);
+        showException(thread, exception);
     }
 }

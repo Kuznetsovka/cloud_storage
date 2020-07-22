@@ -102,16 +102,6 @@ public class CloudServer implements ServerSocketThreadListener, SocketThreadList
     }
 
     @Override
-    public synchronized void onReceiveString(SocketThread thread, Socket socket, String msg) {
-        ClientThread client = (ClientThread) thread;
-        if (client.isAuthorized()) {
-
-        } else {
-
-        }
-    }
-
-    @Override
     public void onUploadFile(SocketThread socketThread, Socket socket, String fileName, int id, DataInputStream in) {
         String dirName = "./common/server/user";
         System.out.println("Client "+ id + " accepted!");
