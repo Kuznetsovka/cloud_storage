@@ -16,14 +16,14 @@ public class Client extends FileUtility implements SocketThreadListener {
     public Client(int id,String pathFile){
         this.id = id;
         connect();
-        upload(pathFile);
-        //download();
+        //upload(pathFile);
+        download();
     }
 
     private void download() {
         String dirName = "./common/server/user" + id + "/1.txt";
         String toPath = "./common/users/user" + id;
-        socketThread.download(dirName,toPath,id);
+        socketThread.download(socket,dirName,toPath,id);
     }
 
     private void upload(String pathFile) {

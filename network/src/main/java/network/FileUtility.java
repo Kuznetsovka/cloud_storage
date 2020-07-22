@@ -19,7 +19,6 @@ public class FileUtility {
         }
     }
 
-
     public static void move(File dir, File file) throws IOException {
         String path = dir.getAbsolutePath() + "/" + file.getName();
         createFile(path);
@@ -34,7 +33,7 @@ public class FileUtility {
         }
     }
 
-    public synchronized void sendFile(Socket socket, File file, int id) throws IOException {
+    public static synchronized void sendFile(Socket socket, File file, int id) throws IOException {
         InputStream is = new FileInputStream(file);
         long size = file.length();
         int count = (int) (size / 8192) / 10, readBuckets = 0;
