@@ -5,10 +5,7 @@ import network.ServerSocketThreadListener;
 import network.SocketThread;
 import network.SocketThreadListener;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
@@ -40,6 +37,7 @@ public class CloudServer implements ServerSocketThreadListener, SocketThreadList
             System.out.println ("Server is not running");
         }
     }
+
 
     /**
      * Server Socket Thread methods
@@ -102,7 +100,41 @@ public class CloudServer implements ServerSocketThreadListener, SocketThreadList
     }
 
     @Override
-    public void onUploadFile(SocketThread socketThread, Socket socket, String fileName, int id, DataInputStream in) {
+    public void onUploadFile(SocketThread socketThread, Socket socket, String fileName, int id, DataInputStream in, String command) {
+        if (command.equals ("download")) {
+            download (fileName, id, in);
+        } else if (command.equals ("upload")){
+            try {
+                sendFile (socket,new File (fileName),id);
+            } catch (IOException e) {
+                e.printStackTrace ();
+            }
+        }
+    }
+
+    public synchronized void sendFile(Socket socket, File file, int id) throws IOException {
+        InputStream is = new FileInputStream(file);
+        long size = file.length();
+        int count = (int) (size / 8192) / 10, readBuckets = 0;
+        count = (size>0 && count==0)?1:count;
+        // /==========/
+        try(DataOutputStream os = new DataOutputStream(socket.getOutputStream())) {
+            byte [] buffer = new byte[8192];
+            os.writeUTF(file.getName() + "##" + id + "##" + "download");
+            System.out.print("/");
+            while (is.available() > 0) {
+                int readBytes = is.read(buffer);
+                readBuckets++;
+                if (readBuckets % count == 0) {
+                    System.out.print("=");
+                }
+                os.write(buffer, 0, readBytes);
+            }
+            System.out.println("/");
+        }
+    }
+
+    private synchronized void download(String fileName, int id, DataInputStream in) {
         String dirName = "./common/server/user";
         System.out.println("Client "+ id + " accepted!");
         System.out.println("fileName: " + fileName);
@@ -121,7 +153,7 @@ public class CloudServer implements ServerSocketThreadListener, SocketThreadList
         } catch (IOException e) {
             e.printStackTrace ();
         }
-        System.out.println("File uploaded!");
+        System.out.println("File download!");
     }
 
     @Override

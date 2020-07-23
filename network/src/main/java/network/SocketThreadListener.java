@@ -9,6 +9,6 @@ public interface SocketThreadListener {
     void onSocketStop(SocketThread thread);
     void onSocketReady(SocketThread thread, Socket socket);
     void onSocketException(SocketThread thread, Exception exception);
-    void onUploadFile(SocketThread socketThread,Socket socket, String fileName, int id, DataInputStream in);
+    void onUploadFile(SocketThread socketThread,Socket socket, String fileName, int id, DataInputStream in, String command);
     void uncaughtException(Thread t, Throwable e);
 }

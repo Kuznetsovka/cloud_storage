@@ -7,10 +7,18 @@ public class SocketThread extends Thread {
 
     private final Socket socket;
     private SocketThreadListener listener;
+    private DataOutputStream out;
+    private DataInputStream in;
 
     public SocketThread(SocketThreadListener listener, String name, Socket socket) {
         super(name);
         this.socket = socket;
+        try {
+            this.out = new DataOutputStream(socket.getOutputStream());
+            this.in = new DataInputStream(socket.getInputStream());
+        } catch (IOException e) {
+            e.printStackTrace ();
+        }
         this.listener = listener;
         start();
     }
@@ -19,14 +27,13 @@ public class SocketThread extends Thread {
     public void run() {
         try {
             listener.onSocketStart(this, socket);
-            DataInputStream in = new DataInputStream(socket.getInputStream());
-            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
             listener.onSocketReady(this, socket);
+            String[] arr = in.readUTF().split ("##");
+            String fileName = arr[0];
+            int id = Integer.parseInt ( arr[1]);
+            String command = arr[2];
             while (!isInterrupted() && in.available ()>0) {
-                String[] arr = in.readUTF().split ("##");
-                String fileName = arr[0];
-                int id = Integer.parseInt (arr[1]);
-                listener.onUploadFile(this,socket, fileName,id, in);
+                listener.onUploadFile(this,socket, fileName,id, in,command);
             }
         } catch (IOException e) {
             listener.onSocketException(this, e);
@@ -45,11 +52,11 @@ public class SocketThread extends Thread {
         }
     }
 
-    public synchronized boolean download(Socket socket1, String fileName, String toPath, int id) {
+    public synchronized boolean download(Socket socket, String fileName, String toPath, int id) {
         try {
             System.out.println ("Download " + fileName);
-            FileUtility.sendFile(socket1,
-                    new File(fileName),id);
+            out.writeUTF(fileName + "##" + id + "##"+"upload");
+            out.flush();
             return true;
         } catch (IOException e) {
             listener.onSocketException(this, e);
