@@ -11,6 +11,8 @@ import javafx.scene.input.TouchEvent;
 import java.io.*;
 import java.net.Socket;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
@@ -22,6 +24,8 @@ public class Controller implements Initializable {
     private Socket socket;
     private DataInputStream is;
     private DataOutputStream os;
+    private int countBufferBytes = 1024;
+    byte[] bytes = new byte[1024];
     private final String clientFilesPath = "./common/src/main/resources/clientFiles";
 
     @Override
@@ -45,7 +49,6 @@ public class Controller implements Initializable {
     public void downloadCommandNIO(ActionEvent actionEvent) throws IOException {
         String fileName = tf_server.getText();
         if (fileName=="" || !fileName.contains (".")) return;
-        byte[] bytes = new byte[1000];
         os.writeBytes ("#download");
         os.writeBytes (fileName);
         try {
@@ -84,6 +87,45 @@ public class Controller implements Initializable {
         }
     }
 
+    public void uploadCommandNIO(ActionEvent actionEvent) throws IOException {
+        String fileName = tf_client.getText();
+        if (fileName=="" || !fileName.contains (".")) return;
+        os.writeBytes ("#upload");
+        os.writeBytes (fileName);
+        System.out.println ("find file with name: " + fileName);
+        File file = new File (clientFilesPath + "/" + fileName);
+        if (file.exists ()) {
+            long len = file.length ();
+            writeLong(len);
+            FileInputStream fis = new FileInputStream (file);
+            System.out.println("/");
+            byte[] buffer = new byte[countBufferBytes];
+            while (fis.available () > 0) {
+                int count = fis.read (buffer);
+                os.write (buffer, 0, count);
+                System.out.println("=");
+            }
+        } else {
+            os.writeUTF ("File not exists");
+        }
+        System.out.println("/");
+    }
+
+    private void writeLong(long len) throws IOException {
+        byte[] LongBytes = ByteBuffer.allocate(4).putLong (len).array();
+        int lastI;
+        if (LongBytes.length < countBufferBytes) {
+            os.write (LongBytes);
+            System.out.println("=");
+        } else {
+            for (int i = 0; i < LongBytes.length-1; countBufferBytes++) {
+                bytes = Arrays.copyOfRange(LongBytes, i , countBufferBytes);
+                os.write(bytes);
+                //TODO Проверить досылается ли хвостик
+            }
+        }
+    }
+
     private long readLong() throws IOException {
         int countBytes = 1024;
         StringBuilder bufferStr = new StringBuilder();
@@ -118,14 +160,13 @@ public class Controller implements Initializable {
                     file.createNewFile ();
                 }
                 long len = is.readLong ();
-                int countBytes = 1024;
-                byte[] buffer = new byte[countBytes];
+                byte[] buffer = new byte[countBufferBytes];
                 try (FileOutputStream fos = new FileOutputStream (file)) {
-                    if (len < countBytes) {
+                    if (len < countBufferBytes) {
                         int count = is.read (buffer);
                         fos.write (buffer, 0, count);
                     } else {
-                        for (long i = 0; i < len / countBytes; i++) {
+                        for (long i = 0; i < len / countBufferBytes; i++) {
                             int count = is.read (buffer);
                             fos.write (buffer, 0, count);
                         }
