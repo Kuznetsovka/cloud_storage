@@ -35,26 +35,28 @@ public class FileHandler implements Runnable {
             try {
                 String command = is.readUTF ();
                 String fileName = is.readUTF ();
-                if (command.equals ("#download")) {
-                    System.out.println ("find file with name: " + fileName);
-                    File file = new File (serverFilePath + "/" + fileName);
-                    if (file.exists ()) {
-                        os.writeUTF ("OK");
-                        long len = file.length ();
-                        os.writeUTF (userName);
-                        os.writeLong (len);
-                        FileInputStream fis = new FileInputStream (file);
-                        byte[] buffer = new byte[1024];
-                        while (fis.available () > 0) {
-                            int count = fis.read (buffer);
-                            os.write (buffer, 0, count);
+                File file;
+                switch (command) {
+                    case ("#download"):
+                        System.out.println ("find file with name: " + fileName);
+                        file = new File (serverFilePath + "/" + fileName);
+                        if (file.exists ()) {
+                            os.writeUTF ("OK");
+                            long len = file.length ();
+                            os.writeUTF (userName);
+                            os.writeLong (len);
+                            FileInputStream fis = new FileInputStream (file);
+                            byte[] buffer = new byte[1024];
+                            while (fis.available () > 0) {
+                                int count = fis.read (buffer);
+                                os.write (buffer, 0, count);
+                            }
+                        } else {
+                            os.writeUTF ("File not exists");
                         }
-                    } else {
-                        os.writeUTF ("File not exists");
-                    }
-                } else if (command.equals ("#upload")) {
-                    try {
-                        File file = new File (serverFilePath + "/" + fileName);
+                        break;
+                    case ("#upload"):
+                        file = new File (serverFilePath + "/" + fileName);
                         if (!file.exists ()) {
                             file.createNewFile ();
                         }
@@ -72,14 +74,15 @@ public class FileHandler implements Runnable {
                             }
                             System.out.println ("Файл закачан!");
                         }
-                    } catch (IOException e) {
-                        e.printStackTrace ();
-                    }
+                        break;
                 }
+            } catch (IOException e) {
+                e.printStackTrace ();
             } catch (Exception e) {
 
             }
             isRunning = socket.isConnected ();
+
         }
     }
 
