@@ -1,4 +1,5 @@
 
+import javafx.beans.binding.StringBinding;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -40,24 +41,26 @@ public class Controller implements Initializable {
 
     // #download fileName
     // #upload fileName
-    public void downloadCommand(ActionEvent actionEvent) throws IOException {
+
+    public void downloadCommandNIO(ActionEvent actionEvent) throws IOException {
         String fileName = tf_server.getText();
         if (fileName=="" || !fileName.contains (".")) return;
-        os.writeUTF ("#download");
-        os.writeUTF (fileName);
+        byte[] bytes = new byte[1000];
+        os.writeBytes ("#download");
+        os.writeBytes (fileName);
         try {
-            String response = is.readUTF ();
+            String response = bytesToStr (bytes);
             System.out.println ("resp: " + response);
             if (response.equals ("OK")) {
-                String userName = is.readUTF ();
+                String userName = bytesToStr (bytes);
                 String path = clientFilesPath + "/" + userName + "/";
                 createDirectory(path);
                 File file = new File (path + fileName);
                 if (!file.exists ()) {
                     file.createNewFile ();
                 }
-                long len = is.readLong ();
-                int countBytes =1024;
+                long len = readLong();
+                int countBytes = 1024;
                 byte[] buffer = new byte[countBytes];
                 try (FileOutputStream fos = new FileOutputStream (file)) {
                     if (len < countBytes) {
@@ -81,7 +84,65 @@ public class Controller implements Initializable {
         }
     }
 
-    public void uploadCommand(ActionEvent actionEvent) throws IOException {
+    private long readLong() throws IOException {
+        int countBytes = 1024;
+        StringBuilder bufferStr = new StringBuilder();
+        byte[] buffer = new byte[countBytes];
+        while (is.available () > 0) {
+            is.readFully (buffer);
+            String str = new String(buffer);
+            bufferStr.append (str);
+        }
+        return Long.getLong (String.valueOf (bufferStr));
+    }
+
+    private String bytesToStr(byte[] bytes) throws IOException {
+        is.readFully (bytes);
+        return new String (bytes);
+    }
+
+    public void downloadCommandIO(ActionEvent actionEvent) throws IOException {
+        String fileName = tf_server.getText();
+        if (fileName=="" || !fileName.contains (".")) return;
+        os.writeUTF ("#download");
+        os.writeUTF (fileName);
+        try {
+            String response = is.readUTF ();
+            System.out.println ("resp: " + response);
+            if (response.equals ("OK")) {
+                String userName = is.readUTF ();
+                String path = clientFilesPath + "/" + userName + "/";
+                createDirectory(path);
+                File file = new File (path + fileName);
+                if (!file.exists ()) {
+                    file.createNewFile ();
+                }
+                long len = is.readLong ();
+                int countBytes = 1024;
+                byte[] buffer = new byte[countBytes];
+                try (FileOutputStream fos = new FileOutputStream (file)) {
+                    if (len < countBytes) {
+                        int count = is.read (buffer);
+                        fos.write (buffer, 0, count);
+                    } else {
+                        for (long i = 0; i < len / countBytes; i++) {
+                            int count = is.read (buffer);
+                            fos.write (buffer, 0, count);
+                        }
+                    }
+                }
+                System.out.println ("Файл скачен!");
+                if(!isExistElement (fileName)) {
+                    lv_client.getItems ().add (fileName);
+                }
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace ();
+        }
+    }
+
+    public void uploadCommandIO(ActionEvent actionEvent) throws IOException {
         String fileName = tf_client.getText();
         if (fileName=="" || !fileName.contains (".")) return;
         os.writeUTF ("#upload");
