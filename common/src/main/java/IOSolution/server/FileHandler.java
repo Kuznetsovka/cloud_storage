@@ -2,6 +2,7 @@ package IOSolution.server;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class FileHandler implements Runnable {
 
@@ -13,6 +14,10 @@ public class FileHandler implements Runnable {
     private static int cnt = 1;
     private String userName;
 
+    public boolean isRunning() {
+        return isRunning;
+    }
+
     public FileHandler(Socket socket) throws IOException {
         this.socket = socket;
         is = new DataInputStream(socket.getInputStream());
@@ -20,14 +25,12 @@ public class FileHandler implements Runnable {
         userName = "user" + cnt;
         cnt++;
         serverFilePath += "/" + userName;
-        File dir = new File(serverFilePath);
-        if (!dir.exists()) {
-            dir.mkdir();
-        }
+        createDirectory(serverFilePath);
     }
 
     @Override
     public void run() {
+
         while (isRunning) {
             try {
                 String command = is.readUTF ();
@@ -76,6 +79,7 @@ public class FileHandler implements Runnable {
             } catch (Exception e) {
 
             }
+            isRunning = socket.isConnected ();
         }
     }
 

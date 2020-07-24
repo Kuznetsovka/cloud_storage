@@ -12,9 +12,9 @@ import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
 
-    public ListView<String> lv;
-    public TextField txt;
-    public Button send;
+    public ListView<String> lv_client;
+    public TextField tf_client;
+    public Button upload;
     private Socket socket;
     private DataInputStream is;
     private DataOutputStream os;
@@ -31,73 +31,98 @@ public class Controller implements Initializable {
         }
         File dir = new File(clientFilesPath);
         for (String file : dir.list()) {
-            lv.getItems().add(file);
+            lv_client.getItems().add(file);
         }
     }
 
-    // ./download fileName
-    // ./upload fileName
-    public void sendCommand(ActionEvent actionEvent) throws IOException {
-        String command = txt.getText();
+    // #download fileName
+    // #upload fileName
+    public void downloadCommand(ActionEvent actionEvent) throws IOException {
+        String command = tf_client.getText();
         String [] op = command.split(" ");
         switch (op[0]){
             case("#download"):
-                os.writeUTF (op[0]);
-                os.writeUTF (op[1]);
-                try {
-                    String response = is.readUTF ();
-                    System.out.println ("resp: " + response);
-                    if (response.equals ("OK")) {
-                        String userName = is.readUTF ();
-                        String path = clientFilesPath + "/" + userName + "/";
-                        createDirectory(path);
-                        File file = new File (path + op[1]);
-                        if (!file.exists ()) {
-                            file.createNewFile ();
-                        }
-                        long len = is.readLong ();
-                        byte[] buffer = new byte[1024];
-                        try (FileOutputStream fos = new FileOutputStream (file)) {
-                            if (len < 1024) {
-                                int count = is.read (buffer);
-                                fos.write (buffer, 0, count);
-                            } else {
-                                for (long i = 0; i < len / 1024; i++) {
-                                    int count = is.read (buffer);
-                                    fos.write (buffer, 0, count);
-                                }
-                            }
-                        }
-                        lv.getItems ().add (op[1]);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace ();
-                } finally {
-                    break;
-                }
+                downloadFile (op);
+                break;
             case("#upload"):
-                os.writeUTF(op[0]);
-                os.writeUTF(op[1]);
-                System.out.println ("find file with name: " + op[1]);
-                File file = new File (clientFilesPath + "/" + op[1]);
-                if (file.exists ()) {
-                    long len = file.length ();
-                    os.writeLong (len);
-                    FileInputStream fis = new FileInputStream (file);
-                    byte[] buffer = new byte[1024];
-                    while (fis.available () > 0) {
-                        int count = fis.read (buffer);
-                        os.write (buffer, 0, count);
-                    }
-                } else {
-                    os.writeUTF ("File not exists");
-                }
-                System.out.println("/");
+                uploadFile (op);
                 break;
             case("#close"):
                 socket.close ();
             default:
                 socket.close ();
+        }
+    }
+
+    public void uploadCommand(ActionEvent actionEvent) throws IOException {
+        String command = tf_client.getText();
+        String [] op = command.split(" ");
+        switch (op[0]){
+            case("#download"):
+                downloadFile (op);
+                break;
+            case("#upload"):
+                uploadFile (op);
+                break;
+            case("#close"):
+                socket.close ();
+            default:
+                socket.close ();
+        }
+    }
+
+    private void uploadFile(String[] op) throws IOException {
+        os.writeUTF(op[0]);
+        os.writeUTF(op[1]);
+        System.out.println ("find file with name: " + op[1]);
+        File file = new File (clientFilesPath + "/" + op[1]);
+        if (file.exists ()) {
+            long len = file.length ();
+            os.writeLong (len);
+            FileInputStream fis = new FileInputStream (file);
+            byte[] buffer = new byte[1024];
+            while (fis.available () > 0) {
+                int count = fis.read (buffer);
+                os.write (buffer, 0, count);
+            }
+        } else {
+            os.writeUTF ("File not exists");
+        }
+        System.out.println("/");
+        return;
+    }
+
+    private void downloadFile(String[] op) throws IOException {
+        os.writeUTF (op[0]);
+        os.writeUTF (op[1]);
+        try {
+            String response = is.readUTF ();
+            System.out.println ("resp: " + response);
+            if (response.equals ("OK")) {
+                String userName = is.readUTF ();
+                String path = clientFilesPath + "/" + userName + "/";
+                createDirectory(path);
+                File file = new File (path + op[1]);
+                if (!file.exists ()) {
+                    file.createNewFile ();
+                }
+                long len = is.readLong ();
+                byte[] buffer = new byte[1024];
+                try (FileOutputStream fos = new FileOutputStream (file)) {
+                    if (len < 1024) {
+                        int count = is.read (buffer);
+                        fos.write (buffer, 0, count);
+                    } else {
+                        for (long i = 0; i < len / 1024; i++) {
+                            int count = is.read (buffer);
+                            fos.write (buffer, 0, count);
+                        }
+                    }
+                }
+                lv_client.getItems ().add (op[1]);
+            }
+        } catch (IOException e) {
+            e.printStackTrace ();
         }
     }
 
