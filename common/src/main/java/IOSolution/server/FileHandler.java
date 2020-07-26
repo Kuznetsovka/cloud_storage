@@ -22,8 +22,7 @@ public class FileHandler implements Runnable {
         this.socket = socket;
         is = new DataInputStream(socket.getInputStream());
         os = new DataOutputStream(socket.getOutputStream());
-        userName = "user" + cnt;
-        cnt++;
+        userName = "user" + cnt++;
         serverFilePath += "/" + userName;
         createDirectory(serverFilePath);
     }
@@ -72,7 +71,7 @@ public class FileHandler implements Runnable {
                                     fos.write (buffer, 0, count);
                                 }
                             }
-                            System.out.println ("Файл закачан!");
+                            System.out.println ("Файл закачен!");
                         }
                         break;
                 }

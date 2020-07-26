@@ -13,10 +13,10 @@ public class FileHandler implements Runnable {
     private boolean isRunning = true;
     private static int cnt = 1;
     private String userName;
+    private Iterator<SelectionKey> iterator;
     private Selector selector;
 
-    public FileHandler() throws IOException {
-        selector = Selector.open ();
+    public FileHandler(Iterator<SelectionKey> iterator) throws IOException {
         userName = "user" + cnt;
         cnt++;
         serverFilePath += "/" + userName;
@@ -30,8 +30,6 @@ public class FileHandler implements Runnable {
     @Override
     public void run() {
         try {
-            selector = Selector.open();
-            Iterator<SelectionKey> iterator = selector.selectedKeys ().iterator ();
             while (iterator.hasNext ()) {
                 SelectionKey key = iterator.next ();
                 if (key.isReadable ()) {

@@ -48,7 +48,7 @@ public class Controller implements Initializable {
 
     public void downloadCommandNIO(ActionEvent actionEvent) throws IOException {
         String fileName = tf_server.getText();
-        if (fileName=="" || !fileName.contains (".")) return;
+        if (fileName.equals ("") || !fileName.contains (".")) return;
         os.writeBytes ("#download");
         os.writeBytes (fileName);
         try {
@@ -89,41 +89,39 @@ public class Controller implements Initializable {
 
     public void uploadCommandNIO(ActionEvent actionEvent) throws IOException {
         String fileName = tf_client.getText();
-        if (fileName=="" || !fileName.contains (".")) return;
-        os.writeBytes ("#upload");
-        os.writeBytes (fileName);
+        if (fileName.equals ("") || !fileName.contains (".")) return;
         System.out.println ("find file with name: " + fileName);
         File file = new File (clientFilesPath + "/" + fileName);
         if (file.exists ()) {
-            long len = file.length ();
-            writeLong(len);
+            os.writeBytes ("#upload&&");
+            os.writeBytes (fileName + "&&");
+            //os.write(String.format ("%s %s\0","#upload",fileName).getBytes ("UTF8"));
             FileInputStream fis = new FileInputStream (file);
-            System.out.println("/");
+            System.out.print("/");
             byte[] buffer = new byte[countBufferBytes];
             while (fis.available () > 0) {
                 int count = fis.read (buffer);
                 os.write (buffer, 0, count);
-                System.out.println("=");
+                System.out.println ("=");
             }
         } else {
             os.writeUTF ("File not exists");
         }
-        System.out.println("/");
+        System.out.print("/");
     }
 
     private void writeLong(long len) throws IOException {
-        byte[] LongBytes = ByteBuffer.allocate(4).putLong (len).array();
-        int lastI;
-        if (LongBytes.length < countBufferBytes) {
-            os.write (LongBytes);
-            System.out.println("=");
-        } else {
-            for (int i = 0; i < LongBytes.length-1; countBufferBytes++) {
-                bytes = Arrays.copyOfRange(LongBytes, i , countBufferBytes);
-                os.write(bytes);
-                //TODO Проверить досылается ли хвостик
-            }
+        byte[] LongBytes = longToBytes(len);
+        os.write (LongBytes);
+    }
+
+    public static byte[] longToBytes(long l) {
+        byte[] result = new byte[8];
+        for (int i = 7; i >= 0; i--) {
+            result[i] = (byte)(l & 0xFF);
+            l >>= 8;
         }
+        return result;
     }
 
     private long readLong() throws IOException {
@@ -145,7 +143,7 @@ public class Controller implements Initializable {
 
     public void downloadCommandIO(ActionEvent actionEvent) throws IOException {
         String fileName = tf_server.getText();
-        if (fileName=="" || !fileName.contains (".")) return;
+        if (fileName.equals ("") || !fileName.contains (".")) return;
         os.writeUTF ("#download");
         os.writeUTF (fileName);
         try {
@@ -185,7 +183,7 @@ public class Controller implements Initializable {
 
     public void uploadCommandIO(ActionEvent actionEvent) throws IOException {
         String fileName = tf_client.getText();
-        if (fileName=="" || !fileName.contains (".")) return;
+        if (fileName.equals ("") || !fileName.contains (".")) return;
         os.writeUTF ("#upload");
         os.writeUTF(fileName);
         System.out.println ("find file with name: " + fileName);

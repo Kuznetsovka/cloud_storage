@@ -31,7 +31,7 @@ public class ServerIO {
 //                }
 //                isRunning = connect;
             }
-            System.out.println("server stopted!");
+            System.out.println("server stopped!");
         } catch (Exception e) {
             e.printStackTrace();
         }
