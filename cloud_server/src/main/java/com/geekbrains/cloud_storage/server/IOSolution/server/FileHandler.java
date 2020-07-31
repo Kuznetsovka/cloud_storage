@@ -1,8 +1,7 @@
-package IOSolution.server;
+package com.geekbrains.cloud_storage.server.IOSolution.server;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 
 public class FileHandler implements Runnable {
 

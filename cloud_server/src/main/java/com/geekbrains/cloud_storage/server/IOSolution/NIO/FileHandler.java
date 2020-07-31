@@ -1,4 +1,4 @@
-package NIO;
+package com.geekbrains.cloud_storage.server.IOSolution.NIO;
 
 import java.io.*;
 import java.nio.ByteBuffer;

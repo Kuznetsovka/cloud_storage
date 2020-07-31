@@ -1,9 +1,8 @@
-package NIO;
+package com.geekbrains.cloud_storage.server.IOSolution.NIO;
 
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
 import java.nio.channels.FileChannel;
 
 public class NIOBuffers {

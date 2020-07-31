@@ -1,4 +1,7 @@
+package com.geekbrains.cloud_storage.client;
 
+import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.binding.StringBinding;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
@@ -32,7 +35,7 @@ public class Controller implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         try {
             socket = new Socket("localhost", 8189);
-            is = new DataInputStream(socket.getInputStream());
+            is = new DataInputStream(socket.getInputStream ());
             os = new DataOutputStream(socket.getOutputStream());
         } catch (IOException e) {
             e.printStackTrace();
@@ -41,6 +44,17 @@ public class Controller implements Initializable {
         for (String file : dir.list()) {
             lv_client.getItems().add(file);
         }
+        new Thread (new Runnable () {
+            @Override
+            public void run() {
+                Platform.runLater(new Runnable() {
+                    @Override public void run() {
+                        if (lv_client.getSelectionModel ().getSelectedIndex ()>0)
+                            tf_client.setAccessibleText (lv_client.getSelectionModel ().getSelectedItem ());
+                    }
+                });
+            }
+        }).start();
     }
 
     // #download fileName
@@ -89,40 +103,48 @@ public class Controller implements Initializable {
 
     public void uploadCommandNIO(ActionEvent actionEvent) throws IOException {
         String fileName = tf_client.getText();
+
+        byte signal =-1;
         if (fileName.equals ("") || !fileName.contains (".")) return;
         System.out.println ("find file with name: " + fileName);
         File file = new File (clientFilesPath + "/" + fileName);
         if (file.exists ()) {
-            os.writeBytes ("#upload&&");
-            os.writeBytes (fileName + "&&");
-            //os.write(String.format ("%s %s\0","#upload",fileName).getBytes ("UTF8"));
+            os.writeBytes ("upload");
+            os.write (-1);
+            os.writeBytes (fileName);
+            os.write (-1);
+            long len = file.length ();
+            byte [] res = new byte[1];
+            is.readFully (res);
+            os.write (longToBytes (len));
             FileInputStream fis = new FileInputStream (file);
             System.out.print("/");
             byte[] buffer = new byte[countBufferBytes];
-            while (fis.available () > 0) {
-                int count = fis.read (buffer);
-                os.write (buffer, 0, count);
-                System.out.println ("=");
+            is.readFully (res);
+            while (is.available () > 0) {
+                    while (fis.available () > 0) {
+                        int count = fis.read (buffer);
+                        try {
+                            os.write (buffer, 0, count);
+                        } catch (Exception e) {
+                            System.out.println ("Error" + count);
+                        }
+                        System.out.print ("=");
+                    }
             }
+            System.out.print("/");
         } else {
             os.writeUTF ("File not exists");
         }
-        System.out.print("/");
+        socket.close ();
     }
 
-    private void writeLong(long len) throws IOException {
-        byte[] LongBytes = longToBytes(len);
-        os.write (LongBytes);
+    public byte[] longToBytes(long x) {
+        ByteBuffer buffer = ByteBuffer.allocate(8);
+        buffer.putLong(x);
+        return buffer.array();
     }
 
-    public static byte[] longToBytes(long l) {
-        byte[] result = new byte[8];
-        for (int i = 7; i >= 0; i--) {
-            result[i] = (byte)(l & 0xFF);
-            l >>= 8;
-        }
-        return result;
-    }
 
     private long readLong() throws IOException {
         int countBytes = 1024;
@@ -222,15 +244,16 @@ public class Controller implements Initializable {
     }
 
     public void selectfiles(TouchEvent touchEvent) {
-        tf_client.setAccessibleText (lv_client.getSelectionModel ().getSelectedItem ());
+       // tf_client.setAccessibleText (lv_client.getSelectionModel ().getSelectedItem ());
     }
 
-    public void exit(MouseEvent mouseEvent) {
+    public void exitAction(ActionEvent actionEvent) {
         try {
             socket.close ();
+            Platform.exit ();
         } catch (IOException e) {
             e.printStackTrace ();
         }
+        Platform.exit ();
     }
-
 }
