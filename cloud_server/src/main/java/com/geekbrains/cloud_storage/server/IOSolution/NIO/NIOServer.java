@@ -1,7 +1,5 @@
 package com.geekbrains.cloud_storage.server.IOSolution.NIO;
 
-import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -10,26 +8,23 @@ import java.nio.file.*;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import static java.lang.Thread.sleep;
-
 public class NIOServer implements Runnable {
     private String serverFilePath = "./common/src/main/resources/serverFilesNIO";
     private ServerSocketChannel serverSocketChannel;
     private Selector selector;
     private String userName;
     private boolean isRunning = true;
-    String fileName=null;
-    String command=null;
-    Long fileSize = null;
+    private String fileName=null;
+    private String command=null;
+    private Long fileSize = null;
     private static int cnt = 1;
     private SocketChannel ch;
     private ByteBuffer buf = ByteBuffer.allocate(1024);
     private ByteBuffer lengthBuf = ByteBuffer.allocate(8);
-    StringBuilder sb = new StringBuilder();
+    private StringBuilder sb = new StringBuilder();
     private final ByteBuffer welcomeBuf = ByteBuffer.wrap("Клиент подключился!\n".getBytes());
-    private final ByteBuffer signalBuf = ByteBuffer.wrap("OK".getBytes());
     private int step;
-    //private ByteBuffer signalBuf = ByteBuffer.allocate(1);
+    private ByteBuffer signalBuf = ByteBuffer.allocate(1);
 
     public NIOServer() throws IOException {
         this.serverSocketChannel = ServerSocketChannel.open ();
@@ -104,14 +99,17 @@ public class NIOServer implements Runnable {
     private void upload(SelectionKey key, SocketChannel ch) throws IOException {
         fileName = (fileName == null)?getStr ():fileName;
         ch.write (signalBuf);
-        if ( step++ == 1) {
-            ch.read (lengthBuf);
-            fileSize = lengthBuf.getLong ();
-            lengthBuf.clear();
-            lengthBuf.flip();
-        }
+        selector.select();
+        lengthBuf.flip();
+        ch.read (lengthBuf);
+        lengthBuf.flip();
+        fileSize = lengthBuf.getLong ();
+        lengthBuf.clear();
+        lengthBuf.flip();
+        ch.write (signalBuf);
+        selector.select();
         Path path = Paths.get (serverFilePath + "/" + key.attachment () + "/" + fileName);
-        if (fileSize!=null && step==3)
+        if (fileSize!=null)
             try (FileChannel fileChannel = FileChannel.open (path, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {
                 int offset = 0;
                 while (true) {
@@ -147,24 +145,6 @@ public class NIOServer implements Runnable {
         return null;
     }
 
-    private Long getLong() {
-        this.buf.flip ();
-        sb.setLength (0);
-        byte[] arr = buf.array ();
-        for (int i = 0; i < arr.length-1; i++) {
-            if (arr[i] == 17) {
-                this.buf.get ();
-                this.buf.compact ();
-                return Long.getLong (String.valueOf (sb));
-            } else {
-                int ii = this.buf.getInt ();
-                sb.append (ii);
-            }
-        }
-        return null;
-    }
-
-
     private byte[] receiveByteArray(SocketChannel channel) throws IOException {
         ByteBuffer readBuffer = ByteBuffer.allocate(1024); //size = 1460
         channel.read(readBuffer); //label 1
@@ -177,21 +157,3 @@ public class NIOServer implements Runnable {
     }
 
 }
-
-/*
-    private void broadcastMessage(String msg) throws IOException {
-        ByteBuffer msgBuf = ByteBuffer.wrap(msg.getBytes());
-        for (SelectionKey key : selector.keys()) {
-            if (key.isValid() && key.channel() instanceof SocketChannel) {
-                SocketChannel sch = (SocketChannel) key.channel();
-                sch.write(msgBuf);
-                msgBuf.rewind();
-            }
-        }
-    }
-
-    public static void main(String[] args) throws IOException {
-        new Thread(new NioChatServerExample()).start();
-    }
-}
-*/

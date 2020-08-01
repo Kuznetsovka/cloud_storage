@@ -1,27 +1,27 @@
 package com.geekbrains.cloud_storage.client;
 
-import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.binding.StringBinding;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TouchEvent;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
+import java.nio.file.Path;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
 
     public ListView<String> lv_client;
+    //public TableView<File> tv_client;
+    //private TableColumn<File,String> tv_client_file;
     public TextField tf_client;
+
+    public ListView<String> lv_server;
+    //public TableView<File> tv_server;
     public TextField tf_server;
     public Button upload;
     private Socket socket;
@@ -42,20 +42,15 @@ public class Controller implements Initializable {
         }
         File dir = new File(clientFilesPath);
         for (String file : dir.list()) {
+            //tv_client_file.setCellValueFactory(new PropertyValueFactory<> (file));
             lv_client.getItems().add(file);
         }
-        new Thread (new Runnable () {
-            @Override
-            public void run() {
-                Platform.runLater(new Runnable() {
-                    @Override public void run() {
-                        if (lv_client.getSelectionModel ().getSelectedIndex ()>0)
-                            tf_client.setAccessibleText (lv_client.getSelectionModel ().getSelectedItem ());
-                    }
-                });
-            }
-        }).start();
-    }
+        lv_client.setOnMouseClicked(
+            e -> {
+                new Thread (() -> Platform.runLater(() ->
+                        tf_client.setText (String.valueOf (lv_client.getSelectionModel ().getSelectedItem ())))).start();
+            });
+        }
 
     // #download fileName
     // #upload fileName
@@ -92,7 +87,8 @@ public class Controller implements Initializable {
                 }
                 System.out.println ("Файл скачен!");
                 if(!isExistElement (fileName)) {
-                    lv_client.getItems ().add (fileName);
+                    lv_client.getItems ().add(fileName);
+                    //tv_client_file.setCellValueFactory(new PropertyValueFactory<> (fileName));
                 }
 
             }
@@ -114,13 +110,13 @@ public class Controller implements Initializable {
             os.writeBytes (fileName);
             os.write (-1);
             long len = file.length ();
-            byte [] res = new byte[1];
-            is.readFully (res);
+            waitResponce ();
+            byte res;
             os.write (longToBytes (len));
             FileInputStream fis = new FileInputStream (file);
             System.out.print("/");
             byte[] buffer = new byte[countBufferBytes];
-            is.readFully (res);
+            waitResponce ();
             while (is.available () > 0) {
                     while (fis.available () > 0) {
                         int count = fis.read (buffer);
@@ -137,6 +133,13 @@ public class Controller implements Initializable {
             os.writeUTF ("File not exists");
         }
         socket.close ();
+    }
+
+    private void waitResponce() throws IOException {
+        byte res = is.readByte (); // Прилетает -48
+        while (res!=-1){}
+        ;
+        res=0;
     }
 
     public byte[] longToBytes(long x) {
@@ -194,7 +197,8 @@ public class Controller implements Initializable {
                 }
                 System.out.println ("Файл скачен!");
                 if(!isExistElement (fileName)) {
-                    lv_client.getItems ().add (fileName);
+                    lv_client.getItems ().add(fileName);
+                    //tv_client_file.setCellValueFactory(new PropertyValueFactory<> (fileName));
                 }
 
             }
@@ -228,6 +232,7 @@ public class Controller implements Initializable {
     }
 
     private boolean isExistElement(String fileName) {
+
         for (String b : lv_client.getItems ()) {
             if (b.equals (fileName)){
                 return true;
@@ -241,10 +246,6 @@ public class Controller implements Initializable {
         if (!file.exists()) {
             file.mkdir();
         }
-    }
-
-    public void selectfiles(TouchEvent touchEvent) {
-       // tf_client.setAccessibleText (lv_client.getSelectionModel ().getSelectedItem ());
     }
 
     public void exitAction(ActionEvent actionEvent) {
