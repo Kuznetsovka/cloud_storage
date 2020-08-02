@@ -3,24 +3,25 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane alignment="center" hgap="10" prefHeight="500.0" prefWidth="845.0" vgap="10" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.geekbrains.cloud_storage.client.Controller">
-    <AnchorPane prefHeight="500.0" prefWidth="850.0">
-        <ListView fx:id="lv_client" layoutX="14.0" layoutY="34.0" prefHeight="420.0" prefWidth="400.0" />
-        <Button fx:id="upload" layoutX="314.0" layoutY="460.0" mnemonicParsing="false" onAction="#uploadCommandNIO" prefHeight="30.0" prefWidth="100.0" text="Upload" />
-        <TextField fx:id="tf_client" layoutX="14.0" layoutY="460.0" prefHeight="30.0" prefWidth="290.0" />
-        <ListView fx:id="lv_server" layoutX="431.0" layoutY="34.0" prefHeight="420.0" prefWidth="400.0" />
-        <TextField fx:id="tf_server" layoutX="431.0" layoutY="460.0" prefHeight="30.0" prefWidth="290.0" />
-        <Button fx:id="download" layoutX="731.0" layoutY="460.0" mnemonicParsing="false" onAction="#downloadCommandNIO" prefHeight="30.0" prefWidth="100.0" text="Download" />
-        <MenuBar layoutY="2.0">
-            <Menu text="Программа">
-                <MenuItem onAction="#exitAction" text="Выйти из программы" />
-            </Menu>
-        </MenuBar>
-    </AnchorPane>
-    <columnConstraints>
-        <ColumnConstraints />
-    </columnConstraints>
-    <rowConstraints>
-        <RowConstraints />
-    </rowConstraints>
-</GridPane>
+<?import javafx.geometry.Insets?>
+<VBox alignment="center" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.geekbrains.cloud_storage.client.Controller">
+    <MenuBar>
+        <Menu text="Программа">
+            <MenuItem onAction="#exitAction" text="Выйти из программы" />
+        </Menu>
+    </MenuBar>
+
+    <HBox VBox.vgrow="ALWAYS">
+            <fx:include fx:id="clientPanel" source="panel.fxml" HBox.hgrow="ALWAYS" />
+            <fx:include fx:id="serverPanel" source="server_panel.fxml" HBox.hgrow="ALWAYS" />
+    </HBox>
+    <HBox spacing="5.0">
+        <Button  text="Connect" fx:id="connect" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#connect" />
+        <Button  text="Upload" fx:id="upload" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#uploadCommandIO" />
+        <Button text="Download" fx:id="download" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#downloadCommandIO"/>
+
+        <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+        </padding>
+    </HBox>
+</VBox>

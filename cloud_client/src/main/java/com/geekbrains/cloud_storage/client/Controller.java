@@ -1,29 +1,24 @@
 package com.geekbrains.cloud_storage.client;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.file.Path;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
 
-    public ListView<String> lv_client;
-    //public TableView<File> tv_client;
-    //private TableColumn<File,String> tv_client_file;
-    public TextField tf_client;
-
-    public ListView<String> lv_server;
-    //public TableView<File> tv_server;
-    public TextField tf_server;
+    @FXML
     public Button upload;
+
     private Socket socket;
     private DataInputStream is;
     private DataOutputStream os;
@@ -33,23 +28,15 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        try {
-            socket = new Socket("localhost", 8189);
-            is = new DataInputStream(socket.getInputStream ());
-            os = new DataOutputStream(socket.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         File dir = new File(clientFilesPath);
-        for (String file : dir.list()) {
-            //tv_client_file.setCellValueFactory(new PropertyValueFactory<> (file));
-            lv_client.getItems().add(file);
-        }
-        lv_client.setOnMouseClicked(
-            e -> {
-                new Thread (() -> Platform.runLater(() ->
-                        tf_client.setText (String.valueOf (lv_client.getSelectionModel ().getSelectedItem ())))).start();
-            });
+
+
+
+//        tv_client.setOnMouseClicked(
+//            e -> {
+//                new Thread (() -> Platform.runLater(() ->
+//                        tf_client.setText (String.valueOf (tv_client.getSelectionModel ().getSelectedItem ())))).start();
+//            });
         }
 
     // #download fileName
@@ -86,10 +73,10 @@ public class Controller implements Initializable {
                     }
                 }
                 System.out.println ("Файл скачен!");
-                if(!isExistElement (fileName)) {
-                    lv_client.getItems ().add(fileName);
-                    //tv_client_file.setCellValueFactory(new PropertyValueFactory<> (fileName));
-                }
+//                if(!isExistElement (fileName)) {
+//                    //lv_client.getItems ().add(fileName);
+//                    tv_client_file.setCellValueFactory(new PropertyValueFactory<> (fileName));
+//                }
 
             }
         } catch (IOException e) {
@@ -196,10 +183,10 @@ public class Controller implements Initializable {
                     }
                 }
                 System.out.println ("Файл скачен!");
-                if(!isExistElement (fileName)) {
-                    lv_client.getItems ().add(fileName);
-                    //tv_client_file.setCellValueFactory(new PropertyValueFactory<> (fileName));
-                }
+//                if(!isExistElement (fileName)) {
+//                    //lv_client.getItems ().add(fileName);
+//                    tv_client_file.setCellValueFactory(new PropertyValueFactory<> (fileName));
+//                }
 
             }
         } catch (IOException e) {
@@ -231,15 +218,15 @@ public class Controller implements Initializable {
         System.out.println("/");
     }
 
-    private boolean isExistElement(String fileName) {
-
-        for (String b : lv_client.getItems ()) {
-            if (b.equals (fileName)){
-                return true;
-            }
-        }
-        return false;
-    }
+//    private boolean isExistElement(String fileName) {
+//
+//        for (String b : lv_client.getItems ()) {
+//            if (b.equals (fileName)){
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     public static void createDirectory(String dirName) {
         File file = new File(dirName);
@@ -256,5 +243,15 @@ public class Controller implements Initializable {
             e.printStackTrace ();
         }
         Platform.exit ();
+    }
+
+    public void connect(ActionEvent actionEvent) {
+        try {
+            socket = new Socket("localhost", 8189);
+            is = new DataInputStream(socket.getInputStream ());
+            os = new DataOutputStream(socket.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
