@@ -3,10 +3,8 @@ package com.geekbrains.cloud_storage.client;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
 
 import java.io.*;
 import java.net.Socket;
@@ -22,128 +20,24 @@ public class Controller implements Initializable {
     private DataInputStream is;
     private DataOutputStream os;
     private int countBufferBytes = 1024;
-    private VBox vbox;
     byte[] bytes = new byte[1024];
-    private final String clientFilesPath = "./common/src/main/resources/clientFiles";
+    private AppModel model ;
+    private String nameFile;
+    private final String clientFilesPath = "./common/src/main/resources/serverFiles";
 
     @FXML
     private Label secondField;
 
+    public Controller(AppModel model) {
+        this.model = model ;
+    }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        model.textProperty().addListener((obs, oldText, newText) -> {
+            nameFile = newText;
+            secondField.setText ("Выбран файл: " + newText);
+        });
         }
-
-    private String clientText(){
-        FXMLLoader fxmlClient = new FXMLLoader(getClass().getResource("/client_panel.fxml"));
-        try {
-            vbox  = fxmlClient.load();
-        } catch (IOException e) {
-            e.printStackTrace ();
-        }
-        ClientController clientController = fxmlClient.getController();
-        secondField.textProperty().bind(clientController.firstFieldTextProperty());
-        return secondField.getText ();
-    }
-
-    private String serverText(){
-        FXMLLoader fxmlServer = new FXMLLoader(getClass().getResource("/server_panel.fxml"));
-        try {
-            vbox  = fxmlServer.load();
-        } catch (IOException e) {
-            e.printStackTrace ();
-        }
-        ServerController serverController = fxmlServer.getController ();
-        secondField.textProperty().bind(serverController.firstFieldTextProperty());
-        return  secondField.getText ();
-    }
-
-
-    public void downloadCommandNIO(ActionEvent actionEvent) throws IOException {
-        String fileName = serverText();
-        if (fileName.equals ("") || !fileName.contains (".")) return;
-        os.writeBytes ("#download");
-        os.writeBytes (fileName);
-        try {
-            String response = bytesToStr (bytes);
-            System.out.println ("resp: " + response);
-            if (response.equals ("OK")) {
-                String userName = bytesToStr (bytes);
-                String path = clientFilesPath + "/" + userName + "/";
-                createDirectory(path);
-                File file = new File (path + fileName);
-                if (!file.exists ()) {
-                    file.createNewFile ();
-                }
-                long len = readLong();
-                int countBytes = 1024;
-                byte[] buffer = new byte[countBytes];
-                try (FileOutputStream fos = new FileOutputStream (file)) {
-                    if (len < countBytes) {
-                        int count = is.read (buffer);
-                        fos.write (buffer, 0, count);
-                    } else {
-                        for (long i = 0; i < len / countBytes; i++) {
-                            int count = is.read (buffer);
-                            fos.write (buffer, 0, count);
-                        }
-                    }
-                }
-                System.out.println ("Файл скачен!");
-//                if(!isExistElement (fileName)) {
-//                    //lv_client.getItems ().add(fileName);
-//                    tv_client_file.setCellValueFactory(new PropertyValueFactory<> (fileName));
-//                }
-
-            }
-        } catch (IOException e) {
-            e.printStackTrace ();
-        }
-    }
-
-    public void uploadCommandNIO(ActionEvent actionEvent) throws IOException {
-        String fileName = clientText();
-        byte signal =-1;
-        if (fileName.equals ("") || !fileName.contains (".")) return;
-        System.out.println ("find file with name: " + fileName);
-        File file = new File (clientFilesPath + "/" + fileName);
-        if (file.exists ()) {
-            os.writeBytes ("upload");
-            os.write (-1);
-            os.writeBytes (fileName);
-            os.write (-1);
-            long len = file.length ();
-            waitResponce ();
-            byte res;
-            os.write (longToBytes (len));
-            FileInputStream fis = new FileInputStream (file);
-            System.out.print("/");
-            byte[] buffer = new byte[countBufferBytes];
-            waitResponce ();
-            while (is.available () > 0) {
-                    while (fis.available () > 0) {
-                        int count = fis.read (buffer);
-                        try {
-                            os.write (buffer, 0, count);
-                        } catch (Exception e) {
-                            System.out.println ("Error" + count);
-                        }
-                        System.out.print ("=");
-                    }
-            }
-            System.out.print("/");
-        } else {
-            os.writeUTF ("File not exists");
-        }
-        socket.close ();
-    }
-
-    private void waitResponce() throws IOException {
-        byte res = is.readByte (); // Прилетает -48
-        while (res!=-1){}
-        ;
-        res=0;
-    }
 
     public byte[] longToBytes(long x) {
         ByteBuffer buffer = ByteBuffer.allocate(8);
@@ -170,7 +64,7 @@ public class Controller implements Initializable {
     }
 
     public void downloadCommandIO(ActionEvent actionEvent) throws IOException {
-        String fileName = serverText();
+        String fileName = nameFile;
         if (fileName.equals ("") || !fileName.contains (".")) return;
         os.writeUTF ("#download");
         os.writeUTF (fileName);
@@ -203,7 +97,6 @@ public class Controller implements Initializable {
 //                    //lv_client.getItems ().add(fileName);
 //                    tv_client_file.setCellValueFactory(new PropertyValueFactory<> (fileName));
 //                }
-
             }
         } catch (IOException e) {
             e.printStackTrace ();
@@ -211,7 +104,7 @@ public class Controller implements Initializable {
     }
 
     public void uploadCommandIO(ActionEvent actionEvent) throws IOException {
-        String fileName = clientText();
+        String fileName = nameFile;
         if (fileName.equals ("") || !fileName.contains (".")) return;
         os.writeUTF ("#upload");
         os.writeUTF(fileName);
@@ -226,7 +119,7 @@ public class Controller implements Initializable {
             while (fis.available () > 0) {
                 int count = fis.read (buffer);
                 os.write (buffer, 0, count);
-                System.out.println("=");
+                System.out.print("=");
             }
         } else {
             os.writeUTF ("File not exists");
@@ -270,4 +163,31 @@ public class Controller implements Initializable {
             e.printStackTrace();
         }
     }
+
+//    public void deleteBtnAction(ActionEvent actionEvent) {
+//        PanelController leftPC = (PanelController) leftPanel.getProperties().get("ctrl");
+//        PanelController rightPC = (PanelController) rightPanel.getProperties().get("ctrl");
+//        if (this.getSelectedFilename() == null && rightPC.getSelectedFilename() == null) {
+//            Alert alert = new Alert(Alert.AlertType.ERROR, "Ни один файл не был выбран", ButtonType.OK);
+//            alert.showAndWait();
+//            return;
+//        }
+//        PanelController currentPC = null;
+//        if (leftPC.getSelectedFilename() != null) {
+//            currentPC = leftPC;
+//        }
+//        if (rightPC.getSelectedFilename() != null) {
+//            currentPC = rightPC;
+//        }
+//        Path pathToFile = currentPC.getCurrentPath().resolve(currentPC.getSelectedFilename());
+//        if(!Files.isDirectory(pathToFile)) {
+//            try {
+//                Files.delete(pathToFile);
+//                currentPC.updateList();
+//            } catch (IOException e) {
+//                Alert alert = new Alert(Alert.AlertType.ERROR, "Не удалось удалить выбранный файл", ButtonType.OK);
+//                alert.showAndWait();
+//            }
+//        }
+//    }
 }

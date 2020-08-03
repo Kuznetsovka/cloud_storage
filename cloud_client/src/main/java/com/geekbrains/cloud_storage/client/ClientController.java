@@ -1,22 +1,17 @@
 package com.geekbrains.cloud_storage.client;
 
-import com.geekbrains.cloud_storage.client.FileInfo;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import lombok.Getter;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,11 +27,18 @@ public class ClientController implements Initializable {
     @FXML
     TextField pathField;
 
+    private Controller parent;
+
     protected Path currentPath;
 
     @FXML
     public TextField tf_client;
+    protected AppModel model ;
     protected String pathPanel="./common/src/main/resources/clientFiles";
+
+    public ClientController(AppModel model) {
+        this.model = model;
+    }
 
     public Path getCurrentPath() {
         return getCurrentPath();
@@ -44,7 +46,6 @@ public class ClientController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
         TableColumn<FileInfo, String> filenameColumn = new TableColumn<>("Название");
         filenameColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getFilename()));
         filenameColumn.setPrefWidth(300.0f);
@@ -73,18 +74,22 @@ public class ClientController implements Initializable {
         fileDateColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getLastModified().format(dtf)));
         fileDateColumn.setPrefWidth(120);
         filesTable.getColumns().addAll(filenameColumn, fileSizeColumn, fileDateColumn);
-
-        filesTable.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2 && filesTable.getSelectionModel().getSelectedItem() != null) {
-                Path path = Paths.get(pathField.getText()).resolve(filesTable.getSelectionModel().getSelectedItem().getFilename());
-                if (Files.isDirectory(path)) {
-                    updateList(path);
-                }
-            }
-            if (event.getClickCount ()==1 && filesTable.getSelectionModel ().getSelectedItem ().getType ()==FileInfo.FileType.FILE && filesTable.getSelectionModel().getSelectedItem() != null){
-                tf_client.setText(String.valueOf (filesTable.getSelectionModel ().getSelectedItem ().getFilename ()));
-            }
-        });
+        new Thread (()-> {
+            Platform.runLater(() -> {
+                filesTable.setOnMouseClicked (event -> {
+                    if (event.getClickCount () == 2 && filesTable.getSelectionModel ().getSelectedItem () != null) {
+                        Path path = Paths.get (pathField.getText ()).resolve (filesTable.getSelectionModel ().getSelectedItem ().getFilename ());
+                        if (Files.isDirectory (path)) {
+                            updateList (path);
+                        }
+                    }
+                    if (event.getClickCount () == 1 && filesTable.getSelectionModel ().getSelectedItem () != null)
+                        if (filesTable.getSelectionModel ().getSelectedItem ().getType () == FileInfo.FileType.FILE) {
+                            model.setText (String.valueOf (filesTable.getSelectionModel ().getSelectedItem ().getFilename ()));
+                        }
+                });
+            });
+        }).start();
         updateList();
     }
 
@@ -127,4 +132,5 @@ public class ClientController implements Initializable {
     public StringProperty firstFieldTextProperty() {
         return tf_client.textProperty();
     }
+
 }
