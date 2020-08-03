@@ -1,12 +1,12 @@
 package com.geekbrains.cloud_storage.client;
 
 import javafx.application.Platform;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 
 import java.io.*;
 import java.net.Socket;
@@ -18,32 +18,49 @@ public class Controller implements Initializable {
 
     @FXML
     public Button upload;
-
     private Socket socket;
     private DataInputStream is;
     private DataOutputStream os;
     private int countBufferBytes = 1024;
+    private VBox vbox;
     byte[] bytes = new byte[1024];
     private final String clientFilesPath = "./common/src/main/resources/clientFiles";
 
+    @FXML
+    private Label secondField;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        File dir = new File(clientFilesPath);
 
-
-
-//        tv_client.setOnMouseClicked(
-//            e -> {
-//                new Thread (() -> Platform.runLater(() ->
-//                        tf_client.setText (String.valueOf (tv_client.getSelectionModel ().getSelectedItem ())))).start();
-//            });
         }
 
-    // #download fileName
-    // #upload fileName
+    private String clientText(){
+        FXMLLoader fxmlClient = new FXMLLoader(getClass().getResource("/client_panel.fxml"));
+        try {
+            vbox  = fxmlClient.load();
+        } catch (IOException e) {
+            e.printStackTrace ();
+        }
+        ClientController clientController = fxmlClient.getController();
+        secondField.textProperty().bind(clientController.firstFieldTextProperty());
+        return secondField.getText ();
+    }
+
+    private String serverText(){
+        FXMLLoader fxmlServer = new FXMLLoader(getClass().getResource("/server_panel.fxml"));
+        try {
+            vbox  = fxmlServer.load();
+        } catch (IOException e) {
+            e.printStackTrace ();
+        }
+        ServerController serverController = fxmlServer.getController ();
+        secondField.textProperty().bind(serverController.firstFieldTextProperty());
+        return  secondField.getText ();
+    }
+
 
     public void downloadCommandNIO(ActionEvent actionEvent) throws IOException {
-        String fileName = tf_server.getText();
+        String fileName = serverText();
         if (fileName.equals ("") || !fileName.contains (".")) return;
         os.writeBytes ("#download");
         os.writeBytes (fileName);
@@ -85,8 +102,7 @@ public class Controller implements Initializable {
     }
 
     public void uploadCommandNIO(ActionEvent actionEvent) throws IOException {
-        String fileName = tf_client.getText();
-
+        String fileName = clientText();
         byte signal =-1;
         if (fileName.equals ("") || !fileName.contains (".")) return;
         System.out.println ("find file with name: " + fileName);
@@ -154,7 +170,7 @@ public class Controller implements Initializable {
     }
 
     public void downloadCommandIO(ActionEvent actionEvent) throws IOException {
-        String fileName = tf_server.getText();
+        String fileName = serverText();
         if (fileName.equals ("") || !fileName.contains (".")) return;
         os.writeUTF ("#download");
         os.writeUTF (fileName);
@@ -195,7 +211,7 @@ public class Controller implements Initializable {
     }
 
     public void uploadCommandIO(ActionEvent actionEvent) throws IOException {
-        String fileName = tf_client.getText();
+        String fileName = clientText();
         if (fileName.equals ("") || !fileName.contains (".")) return;
         os.writeUTF ("#upload");
         os.writeUTF(fileName);

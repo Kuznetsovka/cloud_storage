@@ -1,7 +1,10 @@
 package com.geekbrains.cloud_storage.client;
 
+import com.geekbrains.cloud_storage.client.FileInfo;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -22,7 +25,7 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 @Getter
-public class PanelController implements Initializable {
+public class ClientController implements Initializable {
     @FXML
     TableView<FileInfo> filesTable;
 
@@ -81,7 +84,6 @@ public class PanelController implements Initializable {
             if (event.getClickCount ()==1 && filesTable.getSelectionModel ().getSelectedItem ().getType ()==FileInfo.FileType.FILE && filesTable.getSelectionModel().getSelectedItem() != null){
                 tf_client.setText(String.valueOf (filesTable.getSelectionModel ().getSelectedItem ().getFilename ()));
             }
-
         });
         updateList();
     }
@@ -120,5 +122,9 @@ public class PanelController implements Initializable {
             return null;
         }
         return filesTable.getSelectionModel().getSelectedItem().getFilename();
+    }
+
+    public StringProperty firstFieldTextProperty() {
+        return tf_client.textProperty();
     }
 }

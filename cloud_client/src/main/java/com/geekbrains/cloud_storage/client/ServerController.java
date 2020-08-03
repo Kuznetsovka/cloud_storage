@@ -1,5 +1,6 @@
 package com.geekbrains.cloud_storage.client;
 
+import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -7,7 +8,7 @@ import lombok.Getter;
 
 import java.nio.file.Paths;
 @Getter
-public class ServerPanelController extends PanelController implements Initializable {
+public class ServerController extends ClientController implements Initializable {
 
     @FXML
     TableView<FileInfo> filesTable;
@@ -21,5 +22,9 @@ public class ServerPanelController extends PanelController implements Initializa
 
     public void updateList() {
         updateList(Paths.get(pathPanel));
+    }
+
+    public StringProperty firstFieldTextProperty() {
+        return tf_server.textProperty();
     }
 }
