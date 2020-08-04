@@ -17,9 +17,9 @@
     </HBox>
     <HBox spacing="5.0">
         <Button  text="Connect" fx:id="connect" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#connect" />
-        <Button  text="Upload" fx:id="upload" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#uploadCommandIO" />
-        <Button text="Download" fx:id="download" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#downloadCommandIO"/>
-        <Label fx:id ="secondField" text="d" visible="true"></Label>
+        <Button  text="Upload" fx:id="upload" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#uploadCommandNIO" />
+        <Button text="Download" fx:id="download" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#downloadCommandNIO"/>
+        <Label fx:id ="secondField" text="" visible="true"></Label>
         <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
         </padding>
