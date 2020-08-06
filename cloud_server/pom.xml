@@ -25,10 +25,11 @@
     <dependencies>
         <dependency>
             <groupId>com.Geekbrains</groupId>
-            <artifactId>network</artifactId>
+            <artifactId>common</artifactId>
             <version>1</version>
             <scope>compile</scope>
         </dependency>
+
     </dependencies>
 
 

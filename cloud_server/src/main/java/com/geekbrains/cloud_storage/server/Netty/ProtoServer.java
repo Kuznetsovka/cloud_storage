@@ -9,6 +9,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 public class ProtoServer {
+    static ChannelFuture f;
     public void run() throws Exception {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -16,21 +17,25 @@ public class ProtoServer {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new ChannelInitializer<SocketChannel>() { // (4)
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
-                        public void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new StringToByteBufHandler(), new ProtoHandler());
+                        public void initChannel(SocketChannel ch) {
+                            ch.pipeline().addLast(new ProtoHandler());
                             System.out.println("Получили сообщение от клиента");
                         }
                     });
-                    // .childOption(ChannelOption.SO_KEEPALIVE, true);
+
             System.out.println("Сервер запущен");
-            ChannelFuture f = b.bind(8189).sync();
+            f = b.bind(8189).sync();
             f.channel().closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
         }
+    }
+
+    public static void stop() {
+            f.channel().close ();
     }
 
     public static void main(String[] args) throws Exception {
