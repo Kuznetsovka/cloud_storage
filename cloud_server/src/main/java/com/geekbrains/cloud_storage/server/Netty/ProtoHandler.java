@@ -1,15 +1,22 @@
 package com.geekbrains.cloud_storage.server.Netty;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.*;
+import org.apache.logging.log4j.core.net.DatagramOutputStream;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class ProtoHandler extends ChannelInboundHandlerAdapter {
-    private String serverFilesPath ="./common/src/main/resources/serverFiles/user";
+
+
+    private int sendFileLength;
 
     public enum State {
         IDLE, ID_USER, NAME_LENGTH, NAME, FILE_LENGTH, FILE
@@ -23,6 +30,9 @@ public class ProtoHandler extends ChannelInboundHandlerAdapter {
     private long fileLength;
     private long receivedFileLength;
     private BufferedOutputStream out;
+    private BufferedInputStream in;
+    private String serverFilesPath ="./common/src/main/resources/serverFiles/user";
+    private String fileName;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -35,7 +45,7 @@ public class ProtoHandler extends ChannelInboundHandlerAdapter {
                     currentState = State.ID_USER;
                     receivedFileLength = 0L;
                     System.out.println("STATE: Start file receiving");
-                } else if (command == SIGNAL_DOWNLOAD) {
+                } else if (readed == SIGNAL_DOWNLOAD) {
                     command = SIGNAL_DOWNLOAD;
                     currentState = State.ID_USER;
                     receivedFileLength = 0L;
@@ -59,24 +69,58 @@ public class ProtoHandler extends ChannelInboundHandlerAdapter {
                     currentState = State.NAME;
                 }
             }
-
             if (currentState == State.NAME) {
                 if (buf.readableBytes() >= nextLength) {
-                    byte[] fileName = new byte[nextLength];
-                    buf.readBytes(fileName);
-                    System.out.println("STATE: Filename received - " + new String(fileName, "UTF-8"));
-                    String path = serverFilesPath + id_name +"/";
-                    createDirectory(path);
-                    out = new BufferedOutputStream(new FileOutputStream(path + new String(fileName)));
-                    if (command == SIGNAL_UPLOAD) currentState = State.FILE_LENGTH;
+                    byte[] fileNameByte = new byte[nextLength];
+                    buf.readBytes(fileNameByte);
+                    fileName = new String(fileNameByte, "UTF-8");
+                    System.out.println("STATE: Filename received - " + fileName);
+                    String path = serverFilesPath + id_name + "/";
+                    if (command == SIGNAL_UPLOAD) {
+                        createDirectory (path);
+                        out = new BufferedOutputStream (new FileOutputStream (path + fileName));
+                    } else {
+                        in = new BufferedInputStream (new FileInputStream (path + fileName));
+                    }
+                    currentState = State.FILE_LENGTH;
                 }
             }
-
             if (currentState == State.FILE_LENGTH) {
-                if (buf.readableBytes() >= 8) {
-                    fileLength = buf.readLong();
-                    System.out.println("STATE: File length received - " + fileLength);
-                    currentState = State.FILE;
+                if (command==SIGNAL_UPLOAD){
+                    if (buf.readableBytes() >= 8) {
+                        fileLength = buf.readLong();
+                        System.out.println("STATE: File length received - " + fileLength);
+                        currentState = State.FILE;
+                    }
+                } else {
+                    File file = new File (serverFilesPath + id_name + "/" + fileName);
+                    if (file.exists ()) {
+                        System.out.println ("send OK");
+                        ctx.channel().writeAndFlush("OK\n");
+
+                        long len = file.length ();
+                        buf = ByteBufAllocator.DEFAULT.directBuffer(8);
+                        buf.writeLong(len);
+                        ctx.channel().writeAndFlush(buf);
+
+                        Path path = Paths.get(file.getPath ());
+                        //FileRegion region = new DefaultFileRegion(path.toFile(), 0, Files.size(path));
+                        FileInputStream fis = new FileInputStream (file);
+                        byte[] buffer = new byte[1024];
+                        ByteBufAllocator al = new PooledByteBufAllocator();
+                        System.out.println ("send file");
+                        while (fis.available () > 0) {
+                            int count = fis.read (buffer);
+                            ByteBuf bufFile = al.buffer(buffer.length);
+                            ctx.channel ().writeAndFlush(bufFile);
+                            bufFile.release ();
+                            System.out.print ("=");
+                        }
+                        currentState = State.IDLE;
+                        System.out.print ("/");
+                    } else {
+                        ctx.writeAndFlush ("File not exists\n");
+                    }
                 }
             }
 

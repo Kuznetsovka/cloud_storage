@@ -19,10 +19,12 @@ public class ProtoServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() { // (4)
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new ProtoHandler());
+                            ch.pipeline().addLast(new StringToByteBufHandler(), new ProtoHandler());
+                            System.out.println("Получили сообщение от клиента");
                         }
                     });
                     // .childOption(ChannelOption.SO_KEEPALIVE, true);
+            System.out.println("Сервер запущен");
             ChannelFuture f = b.bind(8189).sync();
             f.channel().closeFuture().sync();
         } finally {
