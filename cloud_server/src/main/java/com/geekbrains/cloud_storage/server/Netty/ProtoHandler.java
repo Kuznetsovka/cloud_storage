@@ -8,7 +8,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 
-public class ProtoHandler extends ChannelInboundHandlerAdapter implements Config, ProtoAction {
+public class ProtoHandler extends ChannelInboundHandlerAdapter implements ProtoAction,Config {
 
     public enum State {
         IDLE, ID_USER, NAME_LENGTH, NAME, FILE_LENGTH, FILE

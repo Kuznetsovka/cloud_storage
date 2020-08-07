@@ -4,6 +4,7 @@
 <?import javafx.scene.layout.*?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Group?>
 <VBox alignment="center" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.geekbrains.cloud_storage.client.Controller">
     <MenuBar>
         <Menu text="Программа">
@@ -17,9 +18,19 @@
     </HBox>
     <HBox spacing="5.0">
         <Button  text="Connect" fx:id="connect" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#connect" />
+        <Button text="Authorise" fx:id="auth" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#autorize"/>
         <Button  text="Upload" fx:id="upload" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#uploadCommandNIO" />
         <Button text="Download" fx:id="download" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#downloadCommandNIO"/>
         <Label fx:id ="secondField" text="" visible="true"></Label>
+        <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+        </padding>
+    </HBox>
+    <HBox spacing="5.0" visible="false">
+        <Label fx:id="lbLogin" text="Логин" visible="true"/>
+        <TextField fx:id="tfLogin" text="Kirill" visible="true"/>
+        <Label fx:id="Password" text="Пароль" visible="true"/>
+        <TextField fx:id="tfPassword" text="" visible="true"/>
         <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
         </padding>
