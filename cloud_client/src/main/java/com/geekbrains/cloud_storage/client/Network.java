@@ -14,7 +14,12 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
 
 public class Network {
+    private static ProtoHandler handle = new ProtoHandler(Controller.id);
     private static Network ourInstance = new Network();
+
+    public static ProtoHandler getHandle() {
+        return handle;
+    }
 
     public static Network getInstance() {
         return ourInstance;
@@ -36,7 +41,7 @@ public class Network {
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) {
-                            socketChannel.pipeline().addLast(new ProtoHandler(Controller.id,Controller.nameFile)); //TODO Уйти от кастыля
+                            socketChannel.pipeline().addLast(handle);
                             System.out.println("Получение файла от сервера");
                             currentChannel = socketChannel;
                         }

@@ -9,7 +9,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
 import java.io.*;
-import java.net.Socket;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
@@ -19,12 +18,7 @@ public class Controller implements Initializable {
 
     @FXML
     public Button upload;
-    private Socket socket;
-    private DataInputStream is;
-    private DataOutputStream os;
     protected static int id;
-    private int countBufferBytes = 1024;
-    byte[] bytes = new byte[1024];
     private AppModel model;
     protected static String nameFile;
     protected final String clientFilesPath = "./common/src/main/resources/clientFiles/user";
@@ -43,23 +37,6 @@ public class Controller implements Initializable {
             secondField.setText ("Выбран файл: " + newText);
         });
         id++;
-    }
-
-    private long readLong() throws IOException {
-        int countBytes = 8;
-        StringBuilder bufferStr = new StringBuilder ();
-        byte[] buffer = new byte[countBytes];
-        while (is.available () > 0) {
-            is.readFully (buffer);
-            String str = new String (buffer);
-            bufferStr.append (str);
-        }
-        return Long.getLong (String.valueOf (bufferStr));
-    }
-
-    private String bytesToStr(byte[] bytes) throws IOException {
-        is.readFully (bytes);
-        return new String (bytes);
     }
 
 
@@ -96,6 +73,7 @@ public class Controller implements Initializable {
 
     public void downloadCommandNIO(ActionEvent actionEvent) {
         try {
+            Network.getHandle ().setFileName (nameFile);
             ProtoFileSender.sendFile(Paths.get(clientFilesPath + id, nameFile),id, SENDER.CLIENT,false, Network.getInstance().getCurrentChannel(), future -> {
                 if (!future.isSuccess()) {
                     future.cause().printStackTrace();

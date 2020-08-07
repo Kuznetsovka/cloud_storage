@@ -9,8 +9,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class ProtoFileSender implements Config {
-
+public class ProtoFileSender {
+    static byte SIGNAL_UPLOAD = 25;
+    static byte SIGNAL_DOWNLOAD = 17;
     public static void sendFile(Path path, int id,SENDER sender, boolean upload, Channel channel, ChannelFutureListener finishListener) throws IOException {
         ByteBuf buf;
         byte signal = (upload)?SIGNAL_UPLOAD:SIGNAL_DOWNLOAD;
