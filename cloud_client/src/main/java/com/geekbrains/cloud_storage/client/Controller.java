@@ -34,6 +34,7 @@ public class Controller implements Initializable {
 
     @FXML
     private Label secondField;
+    private boolean isConnect = false;
 
     public Controller(AppModel model) {
         this.model = model;
@@ -55,12 +56,15 @@ public class Controller implements Initializable {
     }
 
     public void connect (ActionEvent actionEvent){
-        CountDownLatch networkStarter = new CountDownLatch(1);
-        new Thread(() -> Network.getInstance().start(networkStarter)).start();
-        try {
-            networkStarter.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace ();
+        if (!isConnect) {
+            CountDownLatch networkStarter = new CountDownLatch (1);
+            new Thread (() -> Network.getInstance ().start (networkStarter)).start ();
+            try {
+                networkStarter.await ();
+            } catch (InterruptedException e) {
+                e.printStackTrace ();
+            }
+            isConnect = Network.isConnect ();
         }
     }
 
