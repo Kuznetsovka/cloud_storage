@@ -22,9 +22,9 @@ public class Main extends Application {
                 return new ServerController(model);
             } else {
                 try {
-                    return type.newInstance() ; // default behavior - invoke no-arg construtor
+                    return type.newInstance() ;
                 } catch (Exception exc) {
-                    System.err.println("Could not create controller for "+type.getName());
+                    System.err.println("Could not create controller for " + type.getName());
                     throw new RuntimeException(exc);
                 }
             }

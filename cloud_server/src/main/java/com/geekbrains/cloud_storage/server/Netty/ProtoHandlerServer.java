@@ -132,7 +132,6 @@ public class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements 
 
         ProtoFileSender.sendFile (Paths.get (serverFilesPath + id_name, fileName), id_name,  SENDER.SERVER, false,ctx.channel (),future -> {
 
-
             if (!future.isSuccess ()) {
                 future.cause ().printStackTrace ();
                 ProtoServer.stop();

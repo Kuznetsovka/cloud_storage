@@ -34,12 +34,6 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
             }
 
             if (currentState == State.FILE) {
-                String path = clientFilesPath + id + "/";
-                FileFunction.createDirectory (path);
-                try {out = new BufferedOutputStream (new FileOutputStream (path + nameFile));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace ();
-                }
                 while (buf.readableBytes() > 0) {
                     out.write(buf.readByte());
                     receivedFileLength++;
@@ -64,6 +58,12 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
             System.out.println("STATE: File length received - " + fileLength);
             currentState = State.FILE;
             receivedFileLength = 0L;
+        }
+        String path = clientFilesPath + id + "/";
+        FileFunction.createDirectory (path);
+        try {out = new BufferedOutputStream (new FileOutputStream (path + nameFile));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace ();
         }
     }
 
