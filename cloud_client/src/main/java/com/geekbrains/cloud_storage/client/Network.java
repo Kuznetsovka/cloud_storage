@@ -7,17 +7,16 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
 
 public class Network {
-    private static ProtoHandler handle = new ProtoHandler(Controller.id);
+    private static ProtoHandlerClient handle = new ProtoHandlerClient (Controller.id);
     private static Network ourInstance = new Network();
 
-    public static ProtoHandler getHandle() {
+    public static ProtoHandlerClient getHandle() {
         return handle;
     }
 

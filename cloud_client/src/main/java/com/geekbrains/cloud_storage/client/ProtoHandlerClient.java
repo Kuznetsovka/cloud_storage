@@ -8,12 +8,12 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import java.io.*;
 
-public class ProtoHandler extends ChannelInboundHandlerAdapter implements ProtoAction {
+public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements ProtoAction {
 
     private String nameFile;
     private int id;
 
-    public ProtoHandler(int id) {
+    public ProtoHandlerClient(int id) {
         this.id = id;
     }
     public enum State {
@@ -34,7 +34,22 @@ public class ProtoHandler extends ChannelInboundHandlerAdapter implements ProtoA
             }
 
             if (currentState == State.FILE) {
-                writeFile (buf);
+                String path = clientFilesPath + id + "/";
+                FileFunction.createDirectory (path);
+                try {out = new BufferedOutputStream (new FileOutputStream (path + nameFile));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace ();
+                }
+                while (buf.readableBytes() > 0) {
+                    out.write(buf.readByte());
+                    receivedFileLength++;
+                    if (fileLength == receivedFileLength) {
+                        currentState = State.IDLE;
+                        System.out.println("File received");
+                        out.close();
+                        break;
+                    }
+                }
             }
         }
         if (buf.readableBytes() == 0) {

@@ -20,7 +20,7 @@ public class ProtoServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) {
-                            ch.pipeline().addLast(new ProtoHandler());
+                            ch.pipeline().addLast(new ProtoHandlerServer ());
                             System.out.println("Получили сообщение от клиента");
                         }
                     });

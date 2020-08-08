@@ -8,7 +8,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 
-public class ProtoHandler extends ChannelInboundHandlerAdapter implements ProtoAction,Config {
+public class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAction,Config {
 
     public enum State {
         IDLE, ID_USER, NAME_LENGTH, NAME, FILE_LENGTH, FILE
@@ -129,7 +129,10 @@ public class ProtoHandler extends ChannelInboundHandlerAdapter implements ProtoA
     }
 
     private void sending(ChannelHandlerContext ctx) throws IOException {
+
         ProtoFileSender.sendFile (Paths.get (serverFilesPath + id_name, fileName), id_name,  SENDER.SERVER, false,ctx.channel (),future -> {
+
+
             if (!future.isSuccess ()) {
                 future.cause ().printStackTrace ();
                 ProtoServer.stop();
