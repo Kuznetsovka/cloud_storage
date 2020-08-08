@@ -2,6 +2,7 @@ package com.geekbrains.cloud_storage.client;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.scene.control.TableView;
 
 public class AppModel {
 
@@ -18,4 +19,5 @@ public class AppModel {
     public final void setText(String text) {
         textProperty().set(text);
     }
+
 }

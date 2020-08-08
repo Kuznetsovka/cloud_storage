@@ -7,6 +7,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Text;
 
 import java.io.*;
 import java.net.URL;
@@ -22,6 +24,13 @@ public class Controller implements Initializable {
     private AppModel model;
     protected static String nameFile;
     protected final String clientFilesPath = "./common/src/main/resources/clientFiles/user";
+    Alert noConnect = new Alert(Alert.AlertType.INFORMATION, "Нет соединения!", ButtonType.OK);
+
+    @FXML
+    private TextField tfLogin;
+
+    @FXML
+    private TextField tfPassword;
 
     @FXML
     private Label secondField;
@@ -56,38 +65,52 @@ public class Controller implements Initializable {
     }
 
     public void uploadCommandNIO(ActionEvent actionEvent) {
-        try {
-            ProtoFileSender.sendFile(Paths.get(clientFilesPath + id, nameFile),id, SENDER.CLIENT,true, Network.getInstance().getCurrentChannel(), future -> {
-                if (!future.isSuccess()) {
-                    future.cause().printStackTrace();
-                    Network.getInstance().stop();
-                }
-                if (future.isSuccess()) {
-                    System.out.println("Файл успешно передан");
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace ();
+        if (Network.isConnect ()) {
+            try {
+                ProtoFileSender.sendFile (Paths.get (clientFilesPath + id, nameFile), id, SENDER.CLIENT, true, Network.getInstance ().getCurrentChannel (), future -> {
+                    if (!future.isSuccess ()) {
+                        future.cause ().printStackTrace ();
+                        Network.getInstance ().stop ();
+                    }
+                    if (future.isSuccess ()) {
+                        System.out.println ("Файл успешно передан");
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace ();
+            }
+        } else {
+            noConnect.show ();
         }
     }
 
     public void downloadCommandNIO(ActionEvent actionEvent) {
-        try {
-            Network.getHandle ().setFileName (nameFile);
-            ProtoFileSender.sendFile(Paths.get(clientFilesPath + id, nameFile),id, SENDER.CLIENT,false, Network.getInstance().getCurrentChannel(), future -> {
-                if (!future.isSuccess()) {
-                    future.cause().printStackTrace();
-                    Network.getInstance().stop();
-                }
-                if (future.isSuccess()) {
-                    System.out.println("Данные скачаны!");
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace ();
+        if (Network.isConnect ()) {
+            try {
+                Network.getHandle ().setFileName (nameFile);
+                ProtoFileSender.sendFile (Paths.get (clientFilesPath + id, nameFile), id, SENDER.CLIENT, false, Network.getInstance ().getCurrentChannel (), future -> {
+                    if (!future.isSuccess ()) {
+                        future.cause ().printStackTrace ();
+                        Network.getInstance ().stop ();
+                    }
+                    if (future.isSuccess ()) {
+                        System.out.println ("Данные скачаны!");
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace ();
+            }
+        } else {
+            noConnect.show();
         }
     }
 
     public void autorize(ActionEvent actionEvent) {
+    }
+
+    public void clear(MouseEvent mouseEvent) {
+        TextField tf = (TextField) mouseEvent.getSource ();
+        if (mouseEvent.getSource ().equals (tf))
+            tf.setText ("");
     }
 }

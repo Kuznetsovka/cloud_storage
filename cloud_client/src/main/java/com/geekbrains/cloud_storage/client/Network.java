@@ -15,6 +15,11 @@ import java.util.concurrent.CountDownLatch;
 public class Network {
     private static ProtoHandlerClient handle = new ProtoHandlerClient (Controller.id);
     private static Network ourInstance = new Network();
+    private static boolean isConnect = false;
+
+    public  static boolean isConnect() {
+        return isConnect;
+    }
 
     public static ProtoHandlerClient getHandle() {
         return handle;
@@ -41,7 +46,7 @@ public class Network {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) {
                             socketChannel.pipeline().addLast(handle);
-                            System.out.println("Получение файла от сервера");
+                            isConnect = true;
                             currentChannel = socketChannel;
                         }
                     });

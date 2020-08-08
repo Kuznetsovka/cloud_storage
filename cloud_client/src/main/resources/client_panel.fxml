@@ -9,5 +9,4 @@
         <Button onAction="#btnPathUpAction" text="Вверх" />
     </HBox>
     <TableView fx:id="filesTable" VBox.vgrow="ALWAYS" />
-        <TextField fx:id="tf_client" focusTraversable="false" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
 </VBox>

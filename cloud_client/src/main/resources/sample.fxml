@@ -4,7 +4,6 @@
 <?import javafx.scene.layout.*?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.Group?>
 <VBox alignment="center" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.geekbrains.cloud_storage.client.Controller">
     <MenuBar>
         <Menu text="Программа">
@@ -26,11 +25,11 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
         </padding>
     </HBox>
-    <HBox spacing="5.0" visible="false">
+    <HBox spacing="5.0" visible="true">
         <Label fx:id="lbLogin" text="Логин" visible="true"/>
-        <TextField fx:id="tfLogin" text="Kirill" visible="true"/>
+        <TextField fx:id="tfLogin" text="Kirill" visible="true" onMousePressed="#clear"/>
         <Label fx:id="Password" text="Пароль" visible="true"/>
-        <TextField fx:id="tfPassword" text="" visible="true"/>
+        <TextField fx:id="tfPassword" text="***" visible="true" onMousePressed="#clear"/>
         <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
         </padding>

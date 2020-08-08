@@ -8,12 +8,12 @@ import java.nio.file.Paths;
 @Getter
 public class ClientController extends FileController implements Initializable {
 
-    protected String pathPanel="./common/src/main/resources/clientFiles";
-
     public ClientController(AppModel model) {
         super();
         this.model = model;
     }
+
+    protected String pathPanel="./common/src/main/resources/clientFiles";
 
     public void updateList() {
         updateList(Paths.get(pathPanel));
@@ -22,7 +22,5 @@ public class ClientController extends FileController implements Initializable {
     public StringProperty firstFieldTextProperty() {
         return tf_client.textProperty();
     }
-
-
 
 }

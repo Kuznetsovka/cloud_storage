@@ -34,6 +34,7 @@ public class FileController implements Initializable {
     @FXML
     public TextField tf_client;
     protected AppModel model ;
+
     public Path getCurrentPath() {
         return getCurrentPath();
     }
@@ -99,7 +100,7 @@ public class FileController implements Initializable {
             filesTable.getItems().addAll(Files.list(path).map(FileInfo::new).collect(Collectors.toList()));
             filesTable.sort();
         } catch (IOException e) {
-            Alert alert = new Alert(Alert.AlertType.WARNING, "По какой-то неведомой причине не удалось обновить список файлов", ButtonType.OK);
+            Alert alert = new Alert(Alert.AlertType.WARNING, "Не удалось обновить список файлов", ButtonType.OK);
             alert.showAndWait();
         }
     }
