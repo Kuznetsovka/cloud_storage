@@ -9,7 +9,7 @@ import lombok.Getter;
 import java.nio.file.Paths;
 
 @Getter
-public class ServerController extends ClientController implements Initializable {
+public class ServerController extends FileController implements Initializable {
 
     @FXML
     TableView<FileInfo> filesTable;
@@ -23,7 +23,8 @@ public class ServerController extends ClientController implements Initializable 
     protected String pathPanel="./common/src/main/resources/serverFiles";
 
     public ServerController(AppModel model) {
-        super (model);
+        super();
+        this.model = model;
     }
 
     public void updateList() {

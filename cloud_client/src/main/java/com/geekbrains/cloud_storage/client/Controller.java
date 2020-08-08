@@ -80,7 +80,7 @@ public class Controller implements Initializable {
                     Network.getInstance().stop();
                 }
                 if (future.isSuccess()) {
-                    System.out.println("Данные переданы серверу!");
+                    System.out.println("Данные скачаны!");
                 }
             });
         } catch (IOException e) {
