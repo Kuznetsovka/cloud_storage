@@ -3,9 +3,7 @@ package com.geekbrains.cloud_storage.client;
 import com.geekbrains.common.common.FileFunction;
 import com.geekbrains.common.common.ProtoAction;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-
+import io.netty.channel.*;
 import java.io.*;
 
 public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements ProtoAction {
@@ -34,16 +32,7 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
             }
 
             if (currentState == State.FILE) {
-                while (buf.readableBytes() > 0) {
-                    out.write(buf.readByte());
-                    receivedFileLength++;
-                    if (fileLength == receivedFileLength) {
-                        currentState = State.IDLE;
-                        System.out.println("File received");
-                        out.close();
-                        break;
-                    }
-                }
+                writeFile(buf);
             }
         }
         if (buf.readableBytes() == 0) {
@@ -69,12 +58,6 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
 
     @Override
     public void writeFile(ByteBuf buf) throws IOException {
-        String path = clientFilesPath + id + "/";
-        FileFunction.createDirectory (path);
-        try {out = new BufferedOutputStream (new FileOutputStream (path + nameFile));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace ();
-        }
         while (buf.readableBytes() > 0) {
             out.write(buf.readByte());
             receivedFileLength++;

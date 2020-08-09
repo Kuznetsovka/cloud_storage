@@ -1,8 +1,6 @@
 package com.geekbrains.cloud_storage.client;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.scene.control.TableView;
+import javafx.beans.property.*;
 
 public class AppModel {
 

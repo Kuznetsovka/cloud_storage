@@ -16,7 +16,6 @@ public class Network {
     private static ProtoHandlerClient handle = new ProtoHandlerClient (Controller.id);
     private static Network ourInstance = new Network();
     private static boolean isConnect = false;
-
     public  static boolean isConnect() {
         return isConnect;
     }
