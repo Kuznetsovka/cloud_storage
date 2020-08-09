@@ -24,7 +24,6 @@ public class ProtoServer {
                             System.out.println("Получили сообщение от клиента");
                         }
                     });
-
             System.out.println("Сервер запущен");
             f = b.bind(8189).sync();
             f.channel().closeFuture().sync();

@@ -34,6 +34,8 @@ public class Controller implements Initializable {
     @FXML
     private Label secondField;
     private boolean isConnect = false;
+    private String login;
+    private String password;
 
     public Controller(AppModel model) {
         this.model = model;
@@ -56,8 +58,10 @@ public class Controller implements Initializable {
 
     public void connect (ActionEvent actionEvent){
         if (!isConnect) {
+            login = tfLogin.getText ();
+            password = tfPassword.getText ();
             CountDownLatch networkStarter = new CountDownLatch (1);
-            new Thread (() -> Network.getInstance ().start (networkStarter)).start ();
+            new Thread (() -> Network.getInstance ().start (networkStarter,login, password)).start ();
             try {
                 networkStarter.await ();
             } catch (InterruptedException e) {
