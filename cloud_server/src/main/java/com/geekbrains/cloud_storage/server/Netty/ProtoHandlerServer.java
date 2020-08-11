@@ -37,9 +37,6 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
                 case IDLE:
                     readCommand (buf);
                     break;
-//                case ID_USER:
-//                    readIDUser (buf);
-//                    break;
                 case NAME_LENGTH:
                     readLengthNameFile (buf);
                     break;
@@ -116,15 +113,6 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
             nextLength = buf.readInt();
             System.out.println("STATE: Get filename length " + nextLength);
             currentState = State.NAME;
-        }
-    }
-
-    @Override
-    public void readIDUser(ByteBuf buf) {
-        if (buf.readableBytes() >= 4) {
-            id_name = buf.readInt();
-            System.out.println("STATE: Get id_name " + id_name);
-            currentState = State.NAME_LENGTH;
         }
     }
 

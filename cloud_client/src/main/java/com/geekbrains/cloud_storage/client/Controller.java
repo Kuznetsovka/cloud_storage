@@ -59,6 +59,7 @@ public class Controller implements Initializable {
     public void connect (ActionEvent actionEvent){
         if (!isConnect) {
             CountDownLatch networkStarter = new CountDownLatch (1);
+            Network.getHandle ().setClientFilesPath(clientFilesPath);
             new Thread (() -> Network.getInstance ().start (networkStarter,tfLogin.getText (),tfPassword.getText ())).start ();
             try {
                 networkStarter.await ();

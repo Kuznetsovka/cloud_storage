@@ -14,6 +14,5 @@ public interface ProtoAction {
     void readLongFile(ByteBuf buf);
     boolean readNameFile(ChannelHandlerContext ctx, ByteBuf buf) throws IOException;
     void readLengthNameFile(ByteBuf buf);
-    void readIDUser(ByteBuf buf);
     void readCommand(ByteBuf buf);
 }

@@ -7,14 +7,17 @@ import io.netty.channel.*;
 import java.io.*;
 import java.nio.file.Paths;
 
-import static com.geekbrains.cloud_storage.client.Controller.clientFilesPath;
-
 public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements ProtoAction {
 
     private String nameFile;
+    private String clientFilesPath;
 
     protected void setFileName(String s){
         nameFile = s;
+    }
+
+    public void setClientFilesPath(String clientFilesPath) {
+        this.clientFilesPath = clientFilesPath;
     }
 
     public enum State {
@@ -90,11 +93,6 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
 
     @Override
     public void readLengthNameFile(ByteBuf buf) {
-
-    }
-
-    @Override
-    public void readIDUser(ByteBuf buf) {
 
     }
 
