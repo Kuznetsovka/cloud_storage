@@ -1,4 +1,4 @@
-package com.geekbrains.cloud_storage.client;
+package com.geekbrains.common.common;
 
 import java.io.IOException;
 import java.nio.file.Files;

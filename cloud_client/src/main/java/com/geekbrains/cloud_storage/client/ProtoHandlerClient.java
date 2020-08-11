@@ -12,7 +12,7 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
     private String nameFile;
     private String clientFilesPath;
 
-    protected void setFileName(String s){
+    public void setFileName(String s){
         nameFile = s;
     }
 

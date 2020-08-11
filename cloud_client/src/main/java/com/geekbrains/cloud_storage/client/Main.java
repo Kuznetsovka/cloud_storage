@@ -1,5 +1,9 @@
 package com.geekbrains.cloud_storage.client;
 
+import com.geekbrains.cloud_storage.client.controllers.ClientController;
+import com.geekbrains.cloud_storage.client.controllers.Controller;
+import com.geekbrains.cloud_storage.client.controllers.ServerController;
+import com.geekbrains.common.common.AppModel;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

@@ -1,6 +1,7 @@
-package com.geekbrains.cloud_storage.client;
+package com.geekbrains.cloud_storage.client.controllers;
 
-import javafx.application.Platform;
+import com.geekbrains.common.common.AppModel;
+import com.geekbrains.common.common.FileInfo;
 import javafx.beans.property.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -97,9 +98,6 @@ public class FileController implements Initializable {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Не удалось обновить список файлов", ButtonType.OK);
             alert.showAndWait();
         }
-    }
-
-    public void btnPathUpAction(ActionEvent actionEvent) {
     }
 
 //    public void selectDiskAction(ActionEvent actionEvent) {

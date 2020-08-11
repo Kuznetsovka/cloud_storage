@@ -1,17 +1,32 @@
-package com.geekbrains.cloud_storage.client;
+package com.geekbrains.cloud_storage.client.controllers;
 
+import com.geekbrains.common.common.AppModel;
+import com.geekbrains.common.common.FileInfo;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.*;
 import lombok.Getter;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Getter
-public class ClientController extends FileController implements Initializable {
+public class ServerController extends FileController implements Initializable {
 
-    public ClientController(AppModel model) {
+    @FXML
+    TableView<FileInfo> filesTable;
+
+    @FXML
+    TextField pathField;
+
+    @FXML
+    public TextField tf_server;
+
+    protected String pathPanel="./common/src/main/resources/serverFiles";
+
+    public ServerController(AppModel model) {
         super();
         this.model = model;
     }
@@ -21,15 +36,13 @@ public class ClientController extends FileController implements Initializable {
     }
 
     public StringProperty firstFieldTextProperty() {
-        return tf_client.textProperty();
+        return tf_client.textProperty ();
     }
 
     public void btnPathUpAction(ActionEvent actionEvent) {
         Path upperPath = Paths.get(pathField.getText()).getParent();
         if (upperPath != null) {
             updateList(upperPath);
-            model.setText2 (String.valueOf (upperPath));
         }
     }
-
 }

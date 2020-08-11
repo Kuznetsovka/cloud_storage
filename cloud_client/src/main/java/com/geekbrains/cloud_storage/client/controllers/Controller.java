@@ -1,5 +1,7 @@
-package com.geekbrains.cloud_storage.client;
+package com.geekbrains.cloud_storage.client.controllers;
 
+import com.geekbrains.common.common.AppModel;
+import com.geekbrains.cloud_storage.client.Network;
 import com.geekbrains.common.common.ProtoFileSender;
 import com.geekbrains.common.common.SENDER;
 import javafx.application.Platform;
@@ -46,6 +48,7 @@ public class Controller implements Initializable {
         });
         model.textProperty2 ().addListener ((obs, oldText, newText) -> {
             clientFilesPath = newText;
+            Network.getHandle ().setClientFilesPath(clientFilesPath);
             secondField.setText ("Выбран файл: " + Paths.get (clientFilesPath, nameFile).toString ());
         });
     }
@@ -59,7 +62,6 @@ public class Controller implements Initializable {
     public void connect (ActionEvent actionEvent){
         if (!isConnect) {
             CountDownLatch networkStarter = new CountDownLatch (1);
-            Network.getHandle ().setClientFilesPath(clientFilesPath);
             new Thread (() -> Network.getInstance ().start (networkStarter,tfLogin.getText (),tfPassword.getText ())).start ();
             try {
                 networkStarter.await ();
