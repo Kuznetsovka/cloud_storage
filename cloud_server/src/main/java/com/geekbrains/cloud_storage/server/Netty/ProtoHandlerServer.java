@@ -3,16 +3,22 @@ package com.geekbrains.cloud_storage.server.Netty;
 import com.geekbrains.common.common.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
+import io.netty.channel.socket.SocketChannel;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
-public class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAction,Config {
+class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAction,Config {
+    public ProtoHandlerServer(int i) {
+        id_name = i;
+    }
 
     public enum State {
         IDLE, ID_USER, NAME_LENGTH, NAME, FILE_LENGTH, FILE
     }
+    private static ConcurrentLinkedDeque<SocketChannel> clients = new ConcurrentLinkedDeque<> ();
     private byte command;
     private State currentState = State.IDLE;
     private int id_name;
@@ -31,14 +37,15 @@ public class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements 
                 case IDLE:
                     readCommand (buf);
                     break;
-                case ID_USER:
-                    readIDUser (buf);
-                    break;
+//                case ID_USER:
+//                    readIDUser (buf);
+//                    break;
                 case NAME_LENGTH:
                     readLengthNameFile (buf);
                     break;
                 case NAME:
-                    if (readNameFile (ctx, buf)) break;
+                    readNameFile (ctx, buf);
+                    break;
                 case FILE_LENGTH:
                     readLongFile (buf);
                     break;
@@ -64,6 +71,12 @@ public class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements 
                 break;
             }
         }
+    }
+
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) {
+        clients.add((SocketChannel) ctx.channel());
     }
 
     @Override
@@ -120,7 +133,7 @@ public class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements 
         byte readed = buf.readByte();
         if (readed == SIGNAL_UPLOAD ||readed == SIGNAL_DOWNLOAD) {
             command = (readed == SIGNAL_UPLOAD)?SIGNAL_UPLOAD:SIGNAL_DOWNLOAD;
-            currentState = State.ID_USER;
+            currentState = State.NAME_LENGTH;
             receivedFileLength = 0L;
             System.out.println("STATE: Start file receiving");
         } else {
@@ -130,7 +143,7 @@ public class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements 
 
     private void sending(ChannelHandlerContext ctx) throws IOException {
 
-        ProtoFileSender.sendFile (Paths.get (serverFilesPath + id_name, fileName), id_name,  SENDER.SERVER, false,ctx.channel (),future -> {
+        ProtoFileSender.sendFile (Paths.get (serverFilesPath + id_name, fileName),  SENDER.SERVER, false,ctx.channel (),future -> {
 
             if (!future.isSuccess ()) {
                 future.cause ().printStackTrace ();

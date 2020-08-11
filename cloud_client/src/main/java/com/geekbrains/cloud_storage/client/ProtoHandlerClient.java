@@ -5,15 +5,18 @@ import com.geekbrains.common.common.ProtoAction;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import java.io.*;
+import java.nio.file.Paths;
+
+import static com.geekbrains.cloud_storage.client.Controller.clientFilesPath;
 
 public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements ProtoAction {
 
     private String nameFile;
-    private int id;
 
-    public ProtoHandlerClient(int id) {
-        this.id = id;
+    protected void setFileName(String s){
+        nameFile = s;
     }
+
     public enum State {
         IDLE, FILE
     }
@@ -21,7 +24,6 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
     private long fileLength;
     private long receivedFileLength;
     private BufferedOutputStream out;
-    private String clientFilesPath ="./common/src/main/resources/clientFiles/user";
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -48,9 +50,9 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
             currentState = State.FILE;
             receivedFileLength = 0L;
         }
-        String path = clientFilesPath + id + "/";
+        String path = clientFilesPath;
         FileFunction.createDirectory (path);
-        try {out = new BufferedOutputStream (new FileOutputStream (path + nameFile));
+        try {out = new BufferedOutputStream (new FileOutputStream (String.valueOf (Paths.get(path,nameFile))));
         } catch (FileNotFoundException e) {
             e.printStackTrace ();
         }
@@ -68,9 +70,6 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
                 break;
             }
         }
-    }
-    protected void setFileName(String s){
-        nameFile = s;
     }
 
     @Override

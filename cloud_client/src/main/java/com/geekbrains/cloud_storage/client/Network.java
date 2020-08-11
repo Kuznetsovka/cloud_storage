@@ -1,6 +1,8 @@
 package com.geekbrains.cloud_storage.client;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -9,11 +11,15 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 
 public class Network {
-    private static ProtoHandlerClient handle = new ProtoHandlerClient (Controller.id);
+    private static ProtoHandlerClient handle = new ProtoHandlerClient ();
     private static Network ourInstance = new Network();
     private static boolean isConnect = false;
     public  static boolean isConnect() {
@@ -34,7 +40,7 @@ public class Network {
         return currentChannel;
     }
 
-    public void start(CountDownLatch countDownLatch) {
+    public void start(CountDownLatch countDownLatch, String login, String password) {
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             Bootstrap clientBootstrap = new Bootstrap();
@@ -50,6 +56,7 @@ public class Network {
                         }
                     });
             ChannelFuture channelFuture = clientBootstrap.connect().sync();
+            authorize (login, password,currentChannel);
             countDownLatch.countDown();
             channelFuture.channel().closeFuture().sync();
         } catch (Exception e) {
@@ -61,6 +68,21 @@ public class Network {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void authorize(String login, String password, Channel channel) {
+        ByteBuf buf;
+        String str = "#auth " + login + " " + password;
+
+        byte[] strByte = str.getBytes (StandardCharsets.UTF_8);
+
+        buf = ByteBufAllocator.DEFAULT.directBuffer (4);
+        buf.writeInt (str.length ());
+        channel.writeAndFlush (buf);
+
+        buf = ByteBufAllocator.DEFAULT.directBuffer (str.length ());
+        buf.writeBytes (strByte);
+        channel.writeAndFlush (buf);
     }
 
     public void stop() {

@@ -13,6 +13,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+import static java.nio.file.Files.isDirectory;
+import static javafx.application.Platform.*;
+
 public class FileController implements Initializable {
     @FXML
     TableView<FileInfo> filesTable;
@@ -29,10 +32,6 @@ public class FileController implements Initializable {
     @FXML
     public TextField tf_client;
     protected AppModel model ;
-
-    public Path getCurrentPath() {
-        return getCurrentPath();
-    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -64,23 +63,23 @@ public class FileController implements Initializable {
         fileDateColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getLastModified().format(dtf)));
         fileDateColumn.setPrefWidth(120);
         filesTable.getColumns().addAll(filenameColumn, fileSizeColumn, fileDateColumn);
-        new Thread (()-> {
-            Platform.runLater(() -> {
-                filesTable.setOnMouseClicked (event -> {
-                    if (event.getClickCount () == 2 && filesTable.getSelectionModel ().getSelectedItem () != null) {
-                        Path path = Paths.get (pathField.getText ()).resolve (filesTable.getSelectionModel ().getSelectedItem ().getFilename ());
-                        if (Files.isDirectory (path)) {
-                            updateList (path);
-                        }
-                    }
-                    if (event.getClickCount () == 1 && filesTable.getSelectionModel ().getSelectedItem () != null)
-                        if (filesTable.getSelectionModel ().getSelectedItem ().getType () == FileInfo.FileType.FILE) {
-                            model.setText (String.valueOf (filesTable.getSelectionModel ().getSelectedItem ().getFilename ()));
-                        }
-                });
-            });
-        }).start();
+        new Thread (()-> runLater(() -> filesTable.setOnMouseClicked (event -> {
+            if (event.getClickCount () == 2 && filesTable.getSelectionModel ().getSelectedItem () != null) {
+                Path path = Paths.get (pathField.getText ()).resolve (filesTable.getSelectionModel ().getSelectedItem ().getFilename ());
+                if (isDirectory (path)) {
+                    updateList (path);
+                    if (!path.toString ().contains ("server"))
+                        model.setText2 (String.valueOf (path));
+                }
+            }
+            if (event.getClickCount () == 1 && filesTable.getSelectionModel ().getSelectedItem () != null)
+                if (filesTable.getSelectionModel ().getSelectedItem ().getType () == FileInfo.FileType.FILE) {
+                    model.setText1 (String.valueOf (filesTable.getSelectionModel ().getSelectedItem ().getFilename ()));
+                }
+        }))).start();
         updateList();
+        if (!pathField.getText ().contains ("server"))
+            model.setText2 (pathField.getText ());
     }
 
     public void updateList() {
@@ -101,26 +100,22 @@ public class FileController implements Initializable {
     }
 
     public void btnPathUpAction(ActionEvent actionEvent) {
-        Path upperPath = Paths.get(pathField.getText()).getParent();
-        if (upperPath != null) {
-            updateList(upperPath);
-        }
     }
 
-    public void selectDiskAction(ActionEvent actionEvent) {
-        ComboBox<String> element = (ComboBox<String>) actionEvent.getSource();
-        updateList(Paths.get(element.getSelectionModel().getSelectedItem()));
-    }
-
-    public String getSelectedFilename() {
-        if (!filesTable.isFocused()) {
-            return null;
-        }
-        return filesTable.getSelectionModel().getSelectedItem().getFilename();
-    }
-
-    public StringProperty firstFieldTextProperty() {
-        StringProperty o = null;
-        return o;
-    };
+//    public void selectDiskAction(ActionEvent actionEvent) {
+//        ComboBox<String> element = (ComboBox<String>) actionEvent.getSource();
+//        updateList(Paths.get(element.getSelectionModel().getSelectedItem()));
+//    }
+//
+//    public String getSelectedFilename() {
+//        if (!filesTable.isFocused()) {
+//            return null;
+//        }
+//        return filesTable.getSelectionModel().getSelectedItem().getFilename();
+//    }
+//
+//    public StringProperty firstFieldTextProperty() {
+//        StringProperty o = null;
+//        return o;
+//    };
 }

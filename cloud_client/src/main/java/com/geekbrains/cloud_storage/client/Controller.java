@@ -19,10 +19,9 @@ public class Controller implements Initializable {
 
     @FXML
     public Button upload;
-    protected static int id;
     private AppModel model;
-    protected static String nameFile;
-    protected final String clientFilesPath = "./common/src/main/resources/clientFiles/user";
+    protected static String nameFile="";
+    protected static String clientFilesPath = "";
     Alert noConnect = new Alert(Alert.AlertType.INFORMATION, "Нет соединения!", ButtonType.OK);
 
     @FXML
@@ -41,11 +40,14 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        model.textProperty ().addListener ((obs, oldText, newText) -> {
+        model.textProperty1 ().addListener ((obs, oldText, newText) -> {
             nameFile = newText;
-            secondField.setText ("Выбран файл: " + newText);
+            secondField.setText ("Выбран файл: " + Paths.get (clientFilesPath, nameFile).toString ());
         });
-        id++;
+        model.textProperty2 ().addListener ((obs, oldText, newText) -> {
+            clientFilesPath = newText;
+            secondField.setText ("Выбран файл: " + Paths.get (clientFilesPath, nameFile).toString ());
+        });
     }
 
 
@@ -57,7 +59,7 @@ public class Controller implements Initializable {
     public void connect (ActionEvent actionEvent){
         if (!isConnect) {
             CountDownLatch networkStarter = new CountDownLatch (1);
-            new Thread (() -> Network.getInstance ().start (networkStarter)).start ();
+            new Thread (() -> Network.getInstance ().start (networkStarter,tfLogin.getText (),tfPassword.getText ())).start ();
             try {
                 networkStarter.await ();
             } catch (InterruptedException e) {
@@ -70,7 +72,7 @@ public class Controller implements Initializable {
     public void uploadCommandNIO(ActionEvent actionEvent) {
         if (Network.isConnect ()) {
             try {
-                ProtoFileSender.sendFile (Paths.get (clientFilesPath + id, nameFile), id, SENDER.CLIENT, true, Network.getInstance ().getCurrentChannel (), future -> {
+                ProtoFileSender.sendFile (Paths.get (clientFilesPath, nameFile), SENDER.CLIENT, true, Network.getInstance ().getCurrentChannel (), future -> {
                     if (!future.isSuccess ()) {
                         future.cause ().printStackTrace ();
                         Network.getInstance ().stop ();
@@ -91,7 +93,7 @@ public class Controller implements Initializable {
         if (Network.isConnect ()) {
             try {
                 Network.getHandle ().setFileName (nameFile);
-                ProtoFileSender.sendFile (Paths.get (clientFilesPath + id, nameFile), id, SENDER.CLIENT, false, Network.getInstance ().getCurrentChannel (), future -> {
+                ProtoFileSender.sendFile (Paths.get (clientFilesPath, nameFile), SENDER.CLIENT, false, Network.getInstance ().getCurrentChannel (), future -> {
                     if (!future.isSuccess ()) {
                         future.cause ().printStackTrace ();
                         Network.getInstance ().stop ();

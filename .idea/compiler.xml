@@ -12,8 +12,5 @@
         <module name="cloud_server" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="network" target="7" />
-    </bytecodeTargetLevel>
   </component>
 </project>
