@@ -1,4 +1,4 @@
-package com.geekbrains.cloud_storage.server.Netty;
+package com.geekbrains.cloud_storage.server;
 
 import com.geekbrains.common.common.*;
 import io.netty.buffer.ByteBuf;
