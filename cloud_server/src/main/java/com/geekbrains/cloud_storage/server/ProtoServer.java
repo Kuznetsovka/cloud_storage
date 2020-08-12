@@ -55,10 +55,10 @@ public class ProtoServer {
                 if (id==0){
                     closeChannel (ctx);
                 }
-                protoHandler.setId (id);
+                protoHandler.setLogin (login);
                 System.out.println("Подключился клиент id = " + id);
                 authOk = true;
-                //ctx.channel ().pipeline ().remove(this);
+                ctx.channel ().pipeline ().remove(this);
             } else {
                 closeChannel (ctx);
             }

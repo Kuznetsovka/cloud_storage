@@ -5,25 +5,25 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAction,Config {
-    protected void setId(int id) {
-        id_name = id;
+    protected void setLogin(String login) {
+        this.login = login;
     }
 
     public enum State {
         IDLE, NAME_LENGTH, NAME, FILE_LENGTH, FILE
     }
-
     private byte command;
     private State currentState = State.IDLE;
-    private int id_name;
+    private String login;
     private int nextLength;
     private long fileLength;
     private long receivedFileLength;
     private BufferedOutputStream out;
-    private String serverFilesPath ="./common/src/main/resources/serverFiles/user";
+    private String serverFilesPath ="./common/src/main/resources/serverFiles/";
     private String fileName;
 
     @Override
@@ -90,9 +90,9 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
                 currentState = State.IDLE;
                 return true;
             }
-            String path = serverFilesPath + id_name + "/";
+            String path = String.valueOf (Paths.get(serverFilesPath,login));
             FileFunction.createDirectory (path);
-            out = new BufferedOutputStream (new FileOutputStream (path + fileName));
+            out = new BufferedOutputStream (new FileOutputStream (path + "/" + fileName));
             currentState = State.FILE_LENGTH;
         }
         return false;
@@ -115,6 +115,7 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
             currentState = State.NAME_LENGTH;
             receivedFileLength = 0L;
             System.out.println("STATE: Start file receiving");
+
         } else {
             System.out.println("ERROR: Invalid first byte - " + readed);
         }
@@ -122,7 +123,7 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
 
     private void sending(ChannelHandlerContext ctx) throws IOException {
 
-        ProtoFileSender.sendFile (Paths.get (serverFilesPath + id_name, fileName),  SENDER.SERVER, false,ctx.channel (),future -> {
+        ProtoFileSender.sendFile (Paths.get (serverFilesPath, login, fileName),  SENDER.SERVER, false,ctx.channel (),future -> {
             if (!future.isSuccess ()) {
                 future.cause ().printStackTrace ();
                 ProtoServer.stop();

@@ -42,11 +42,11 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        model.textProperty1 ().addListener ((obs, oldText, newText) -> {
+        model.textNameFile ().addListener ((obs, oldText, newText) -> {
             nameFile = newText;
             secondField.setText ("Выбран файл: " + Paths.get (clientFilesPath, nameFile).toString ());
         });
-        model.textProperty2 ().addListener ((obs, oldText, newText) -> {
+        model.textPathSelected ().addListener ((obs, oldText, newText) -> {
             clientFilesPath = newText;
             Network.getHandle ().setClientFilesPath(clientFilesPath);
             secondField.setText ("Выбран файл: " + Paths.get (clientFilesPath, nameFile).toString ());
@@ -82,6 +82,8 @@ public class Controller implements Initializable {
                     }
                     if (future.isSuccess ()) {
                         System.out.println ("Файл успешно передан");
+                        Thread.sleep (500);
+                        model.setText4 (tfLogin.getText ());
                     }
                 });
             } catch (IOException e) {
@@ -102,7 +104,9 @@ public class Controller implements Initializable {
                         Network.getInstance ().stop ();
                     }
                     if (future.isSuccess ()) {
-                        System.out.println ("Данные скачаны!");
+                        System.out.println ("Файл скачался!");
+                        Thread.sleep (500);
+                        model.setText3 (clientFilesPath);
                     }
                 });
             } catch (IOException e) {

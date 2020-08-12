@@ -3,7 +3,6 @@ package com.geekbrains.cloud_storage.client.controllers;
 import com.geekbrains.common.common.AppModel;
 import com.geekbrains.common.common.FileInfo;
 import javafx.beans.property.*;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;

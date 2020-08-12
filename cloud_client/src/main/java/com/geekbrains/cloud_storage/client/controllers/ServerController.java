@@ -29,6 +29,9 @@ public class ServerController extends FileController implements Initializable {
     public ServerController(AppModel model) {
         super();
         this.model = model;
+        model.textLogin ().addListener ((obs, oldText, newText) -> {
+            updateList (Paths.get (pathPanel + "/" + newText));
+        });
     }
 
     public void updateList() {
