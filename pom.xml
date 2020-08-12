@@ -12,7 +12,6 @@
         <module>cloud_client</module>
         <module>cloud_server</module>
         <module>common</module>
-        <module>network</module>
     </modules>
     <build>
       <plugins>
@@ -23,6 +22,15 @@
               <configuration>
                   <source>8</source>
                   <target>8</target>
+              </configuration>
+          </plugin>
+          <plugin>
+              <groupId> org.apache.maven.plugins</groupId>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <configuration>
+                  <SystemPropertyVariables>
+                      <user.timezone>UTC</user.timezone>
+                  </SystemPropertyVariables>
               </configuration>
           </plugin>
       </plugins>
@@ -49,6 +57,11 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
             <version>2.13.0</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.20</version>
         </dependency>
     </dependencies>
 

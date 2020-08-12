@@ -3,22 +3,19 @@ package com.geekbrains.cloud_storage.server;
 import com.geekbrains.common.common.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
-import io.netty.channel.socket.SocketChannel;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAction,Config {
-    public ProtoHandlerServer(int i) {
-        id_name = i;
+    protected void setId(int id) {
+        id_name = id;
     }
 
     public enum State {
-        IDLE, ID_USER, NAME_LENGTH, NAME, FILE_LENGTH, FILE
+        IDLE, NAME_LENGTH, NAME, FILE_LENGTH, FILE
     }
-    private static ConcurrentLinkedDeque<SocketChannel> clients = new ConcurrentLinkedDeque<> ();
+
     private byte command;
     private State currentState = State.IDLE;
     private int id_name;
@@ -68,12 +65,6 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
                 break;
             }
         }
-    }
-
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) {
-        clients.add((SocketChannel) ctx.channel());
     }
 
     @Override
@@ -132,7 +123,6 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
     private void sending(ChannelHandlerContext ctx) throws IOException {
 
         ProtoFileSender.sendFile (Paths.get (serverFilesPath + id_name, fileName),  SENDER.SERVER, false,ctx.channel (),future -> {
-
             if (!future.isSuccess ()) {
                 future.cause ().printStackTrace ();
                 ProtoServer.stop();

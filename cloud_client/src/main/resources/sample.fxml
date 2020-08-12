@@ -29,7 +29,7 @@
         <Label fx:id="lbLogin" text="Логин" visible="true"/>
         <TextField fx:id="tfLogin" text="Kirill" visible="true" onMousePressed="#clear"/>
         <Label fx:id="Password" text="Пароль" visible="true"/>
-        <TextField fx:id="tfPassword" text="***" visible="true" onMousePressed="#clear"/>
+        <TextField fx:id="tfPassword" text="123456" visible="true" onMousePressed="#clear"/>
         <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
         </padding>
