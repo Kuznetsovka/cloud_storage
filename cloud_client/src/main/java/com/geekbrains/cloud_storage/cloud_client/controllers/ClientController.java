@@ -1,6 +1,6 @@
-package com.geekbrains.cloud_storage.client.controllers;
+package com.geekbrains.cloud_storage.cloud_client.controllers;
 
-import com.geekbrains.common.common.AppModel;
+import com.geekbrains.cloud_storage.common.AppModel;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;

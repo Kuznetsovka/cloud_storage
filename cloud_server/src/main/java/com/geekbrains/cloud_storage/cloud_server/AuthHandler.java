@@ -1,4 +1,4 @@
-package com.geekbrains.cloud_storage.server;
+package com.geekbrains.cloud_storage.cloud_server;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

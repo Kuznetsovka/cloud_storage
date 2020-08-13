@@ -1,7 +1,7 @@
-package com.geekbrains.cloud_storage.client.controllers;
+package com.geekbrains.cloud_storage.cloud_client.controllers;
 
-import com.geekbrains.common.common.AppModel;
-import com.geekbrains.common.common.FileInfo;
+import com.geekbrains.cloud_storage.common.AppModel;
+import com.geekbrains.cloud_storage.common.FileInfo;
 import javafx.beans.property.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -24,8 +24,6 @@ public class FileController implements Initializable {
 
     @FXML
     TextField pathField;
-
-    private Controller parent;
 
     protected Path currentPath;
 
@@ -91,7 +89,14 @@ public class FileController implements Initializable {
             currentPath = path.normalize().toAbsolutePath();
             pathField.setText(currentPath.toString());
             filesTable.getItems().clear();
-            filesTable.getItems().addAll(Files.list(path).map(FileInfo::new).collect(Collectors.toList()));
+            filesTable.getItems().addAll(Files.list(path).map(path1 -> {
+                try {
+                    return new FileInfo (path1);
+                } catch (IOException e) {
+                    e.printStackTrace ();
+                }
+                return null;
+            }).collect(Collectors.toList()));
             filesTable.sort();
         } catch (IOException e) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Не удалось обновить список файлов", ButtonType.OK);

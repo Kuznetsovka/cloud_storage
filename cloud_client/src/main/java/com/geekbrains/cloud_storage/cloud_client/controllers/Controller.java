@@ -1,9 +1,9 @@
-package com.geekbrains.cloud_storage.client.controllers;
+package com.geekbrains.cloud_storage.cloud_client.controllers;
 
-import com.geekbrains.common.common.AppModel;
-import com.geekbrains.cloud_storage.client.Network;
-import com.geekbrains.common.common.ProtoFileSender;
-import com.geekbrains.common.common.SENDER;
+import com.geekbrains.cloud_storage.common.AppModel;
+import com.geekbrains.cloud_storage.cloud_client.Network;
+import com.geekbrains.cloud_storage.common.ProtoFileSender;
+import com.geekbrains.cloud_storage.common.SENDER;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -20,7 +20,9 @@ import java.util.concurrent.CountDownLatch;
 public class Controller implements Initializable {
 
     @FXML
-    public Button upload;
+    public Button btnUpload;
+    public Button btnDownload;
+    public Button btnConnect;
     private AppModel model;
     protected static String nameFile="";
     protected static String clientFilesPath = "";
@@ -66,7 +68,7 @@ public class Controller implements Initializable {
     public synchronized void connect (ActionEvent actionEvent){
         if (!isConnect) {
             CountDownLatch networkStarter = new CountDownLatch (1);
-            new Thread (() -> Network.getInstance ().start (this,networkStarter,tfLogin.getText (),tfPassword.getText ())).start ();
+            new Thread (() -> Network.getInstance ().start (this,networkStarter,tfLogin.getText (),tfPassword.getText (),model)).start ();
             try {
                 networkStarter.await ();
             } catch (InterruptedException e) {
@@ -74,6 +76,7 @@ public class Controller implements Initializable {
             }
             secondField.setText ("Connect");
             isConnect = true;
+            btnConnect.setVisible (false);
         }
     }
 
@@ -87,8 +90,6 @@ public class Controller implements Initializable {
                     }
                     if (future.isSuccess ()) {
                         System.out.println ("Файл успешно передан");
-                        Thread.sleep (500);
-                        model.setText4 (tfLogin.getText ());
                     }
                 });
             } catch (IOException e) {
@@ -121,10 +122,6 @@ public class Controller implements Initializable {
             noConnect.show();
         }
     }
-
-    public void autorize(ActionEvent actionEvent) {
-    }
-
     public void clear(MouseEvent mouseEvent) {
         TextField tf = (TextField) mouseEvent.getSource ();
         if (mouseEvent.getSource ().equals (tf))

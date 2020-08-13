@@ -1,16 +1,24 @@
-package com.geekbrains.cloud_storage.client;
+package com.geekbrains.cloud_storage.cloud_client;
 
-import com.geekbrains.common.common.FileFunction;
-import com.geekbrains.common.common.ProtoAction;
+import com.geekbrains.cloud_storage.common.AppModel;
+import com.geekbrains.cloud_storage.common.FileFunction;
+import com.geekbrains.cloud_storage.common.FileInfo;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import java.io.*;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements ProtoAction {
+public class ProtoHandlerClient extends ChannelInboundHandlerAdapter {
 
     private String nameFile;
     private String clientFilesPath;
+    private AppModel model;
+
+    public ProtoHandlerClient(AppModel model) {
+        this.model = model;
+    }
 
     public void setFileName(String s){
         nameFile = s;
@@ -27,10 +35,25 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
     private long fileLength;
     private long receivedFileLength;
     private BufferedOutputStream out;
+    public static List<FileInfo> listFileServer= new ArrayList<> ();
+
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        Thread.sleep (500);
+        model.setText4 ("");
+    }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        ByteBuf buf = ((ByteBuf) msg);
+        if (msg instanceof FileInfo) {
+            listFileServer.add ((FileInfo) msg);
+        } else {
+            ByteBuf buf = ((ByteBuf) msg);
+            readFile (buf);
+        }
+    }
+
+    private void readFile(ByteBuf buf) throws IOException {
         while (buf.readableBytes() > 0) {
             if (currentState == State.IDLE) {
                 readLongFile (buf);
@@ -44,7 +67,6 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
         }
     }
 
-    @Override
     public void readLongFile(ByteBuf buf)  {
         if (buf.readableBytes() >= 8) {
             fileLength = buf.readLong();
@@ -60,7 +82,6 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
         }
     }
 
-    @Override
     public void writeFile(ByteBuf buf) throws IOException {
         while (buf.readableBytes() > 0) {
             out.write(buf.readByte());
@@ -78,26 +99,6 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
         ctx.close();
-    }
-
-    /****
-     *
-     * @param buf
-     */
-
-    @Override
-    public boolean readNameFile(ChannelHandlerContext ctx, ByteBuf buf){
-        return false;
-    }
-
-    @Override
-    public void readLengthNameFile(ByteBuf buf) {
-
-    }
-
-    @Override
-    public void readCommand(ByteBuf buf) {
-
     }
 
 }

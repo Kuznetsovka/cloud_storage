@@ -1,4 +1,4 @@
-package com.geekbrains.common.common;
+package com.geekbrains.cloud_storage.common;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;

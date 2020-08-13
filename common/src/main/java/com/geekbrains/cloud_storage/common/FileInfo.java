@@ -1,12 +1,14 @@
-package com.geekbrains.common.common;
+package com.geekbrains.cloud_storage.common;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
-public class FileInfo {
+
+public class FileInfo implements Serializable {
+
     public enum FileType {
         FILE("F"), DIRECTORY("D");
 
@@ -58,7 +60,7 @@ public class FileInfo {
         this.lastModified = lastModified;
     }
 
-    public FileInfo(Path path) {
+    public FileInfo(Path path) throws IOException {
         try {
             this.filename = path.getFileName().toString();
             this.size = Files.size(path);
@@ -71,4 +73,26 @@ public class FileInfo {
             throw new RuntimeException("Unable to build file info from path");
         }
     }
+
+//    public static void serializer(FileInfo fi) {
+//        try {
+//            FileInputStream fos = new FileInputStream("FileInfoIn.ser");
+//            ObjectOutputStream out = new ObjectOutputStream (new OutputStream (fos));
+//            out.writeObject(fi);
+//            out.flush();
+//            out.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+//    public static FileInfo deserializer() {
+//        try (FileInputStream fis = new FileInputStream("FileInfoIn.ser");
+//             ObjectInputStream in = new ObjectInputStream(fis)){
+//            return (FileInfo) in.readObject();
+//
+//        } catch (Exception ex) {
+//            System.err.println("Erreur de lecture " + ex);
+//        }
+//    return null;
+//    }
 }

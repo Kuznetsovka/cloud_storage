@@ -1,16 +1,17 @@
-package com.geekbrains.cloud_storage.client.controllers;
+package com.geekbrains.cloud_storage.cloud_client.controllers;
 
-import com.geekbrains.common.common.AppModel;
-import com.geekbrains.common.common.FileInfo;
+import com.geekbrains.cloud_storage.common.AppModel;
+import com.geekbrains.cloud_storage.common.FileInfo;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import lombok.Getter;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static com.geekbrains.cloud_storage.cloud_client.ProtoHandlerClient.listFileServer;
 
 @Getter
 public class ServerController extends FileController implements Initializable {
@@ -30,12 +31,14 @@ public class ServerController extends FileController implements Initializable {
         super();
         this.model = model;
         model.textLogin ().addListener ((obs, oldText, newText) -> {
-            updateList (Paths.get (pathPanel + "/" + newText));
+            updateList ();
         });
     }
 
     public void updateList() {
-        updateList(Paths.get(pathPanel));
+        filesTable.getItems().clear();
+        filesTable.getItems().addAll(listFileServer);
+        filesTable.sort();
     }
 
     public StringProperty textNameFile() {
