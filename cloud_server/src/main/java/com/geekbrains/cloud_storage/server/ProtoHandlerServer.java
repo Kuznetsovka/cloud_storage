@@ -10,11 +10,11 @@ import java.nio.file.Paths;
 class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAction,Config {
 
     public enum State {
-        IDLE, NAME_LENGTH, NAME, FILE_LENGTH, FILE
+        LOGIN,IDLE, NAME_LENGTH, NAME, FILE_LENGTH, FILE
     }
     private byte command;
-    private State currentState = State.IDLE;
-    private String login = "Kirill";
+    private State currentState = State.LOGIN;
+    private String login;
     private int nextLength;
     private long fileLength;
     private long receivedFileLength;
@@ -27,6 +27,9 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
         ByteBuf buf = ((ByteBuf) msg);
         while (buf.readableBytes() > 0) {
             switch (currentState) {
+                case LOGIN:
+                    readLogin (buf);
+                    break;
                 case IDLE:
                     readCommand (buf);
                     break;
@@ -47,6 +50,13 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
         if (buf.readableBytes () == 0) {
             buf.release ();
         }
+    }
+
+    private void readLogin(ByteBuf buf) {
+        byte[] bytes = new byte[buf.readInt ()];
+        buf.readBytes(bytes);
+        login = new String(bytes, StandardCharsets.UTF_8);
+        currentState = State.IDLE;
     }
 
     @Override

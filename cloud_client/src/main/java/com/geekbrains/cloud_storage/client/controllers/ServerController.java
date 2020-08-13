@@ -38,7 +38,7 @@ public class ServerController extends FileController implements Initializable {
         updateList(Paths.get(pathPanel));
     }
 
-    public StringProperty firstFieldTextProperty() {
+    public StringProperty textNameFile() {
         return tf_client.textProperty ();
     }
 

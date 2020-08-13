@@ -12,7 +12,7 @@ import java.nio.file.Path;
 public class ProtoFileSender implements Config {
     public static void sendFile(Path path,SENDER sender, boolean upload, Channel channel, ChannelFutureListener finishListener) throws IOException {
         ByteBuf buf;
-        byte signal = (upload)?SIGNAL_UPLOAD:SIGNAL_DOWNLOAD;
+        byte signal = upload ? SIGNAL_UPLOAD:SIGNAL_DOWNLOAD;
         if (sender == SENDER.CLIENT) {
 
             buf = ByteBufAllocator.DEFAULT.directBuffer (1);

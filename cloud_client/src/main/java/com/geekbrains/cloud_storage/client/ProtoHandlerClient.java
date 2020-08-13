@@ -35,7 +35,6 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
             if (currentState == State.IDLE) {
                 readLongFile (buf);
             }
-
             if (currentState == State.FILE) {
                 writeFile(buf);
             }

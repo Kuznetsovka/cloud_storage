@@ -4,7 +4,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.SocketChannel;
-
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -47,6 +46,9 @@ public class  AuthHandler extends ChannelInboundHandlerAdapter {
         // #auth login password
         if (str.split(" ")[0].equals("#auth")) {
             login = str.split(" ")[1];
+            buf.writeInt (login.length ());
+            buf.writeBytes (login.getBytes (StandardCharsets.UTF_8));
+            ctx.fireChannelRead (buf);
             password = str.split(" ")[2];
             id = SqlClient.getIdUser (login, password);
             if (id==0){
