@@ -5,20 +5,16 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAction,Config {
-    protected void setLogin(String login) {
-        this.login = login;
-    }
 
     public enum State {
         IDLE, NAME_LENGTH, NAME, FILE_LENGTH, FILE
     }
     private byte command;
     private State currentState = State.IDLE;
-    private String login;
+    private String login = "Kirill";
     private int nextLength;
     private long fileLength;
     private long receivedFileLength;
@@ -122,7 +118,6 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
     }
 
     private void sending(ChannelHandlerContext ctx) throws IOException {
-
         ProtoFileSender.sendFile (Paths.get (serverFilesPath, login, fileName),  SENDER.SERVER, false,ctx.channel (),future -> {
             if (!future.isSuccess ()) {
                 future.cause ().printStackTrace ();

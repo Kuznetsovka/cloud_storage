@@ -1,5 +1,6 @@
 package com.geekbrains.cloud_storage.client;
 
+import com.geekbrains.cloud_storage.client.controllers.Controller;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -17,10 +18,6 @@ import java.util.concurrent.CountDownLatch;
 public class Network {
     private static ProtoHandlerClient handle = new ProtoHandlerClient ();
     private static Network ourInstance = new Network();
-    private static boolean isConnect = false;
-    public  static boolean isConnect() {
-        return isConnect;
-    }
 
     public static ProtoHandlerClient getHandle() {
         return handle;
@@ -36,7 +33,7 @@ public class Network {
         return currentChannel;
     }
 
-    public void start(CountDownLatch countDownLatch, String login, String password) {
+    public void start(Controller controller, CountDownLatch countDownLatch, String login, String password) {
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             Bootstrap clientBootstrap = new Bootstrap();
@@ -47,7 +44,7 @@ public class Network {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) {
                             socketChannel.pipeline().addLast(handle);
-                            isConnect = true;
+                            controller.setConnect(true);
                             currentChannel = socketChannel;
                         }
                     });

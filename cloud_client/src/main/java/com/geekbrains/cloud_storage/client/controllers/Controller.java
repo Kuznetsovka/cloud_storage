@@ -59,21 +59,26 @@ public class Controller implements Initializable {
         Platform.exit ();
     }
 
-    public void connect (ActionEvent actionEvent){
+    public void setConnect(boolean connect) {
+        isConnect = connect;
+    }
+
+    public synchronized void connect (ActionEvent actionEvent){
         if (!isConnect) {
             CountDownLatch networkStarter = new CountDownLatch (1);
-            new Thread (() -> Network.getInstance ().start (networkStarter,tfLogin.getText (),tfPassword.getText ())).start ();
+            new Thread (() -> Network.getInstance ().start (this,networkStarter,tfLogin.getText (),tfPassword.getText ())).start ();
             try {
                 networkStarter.await ();
             } catch (InterruptedException e) {
                 e.printStackTrace ();
             }
-            isConnect = Network.isConnect ();
+            secondField.setText ("Connect");
+            isConnect = true;
         }
     }
 
     public void uploadCommandNIO(ActionEvent actionEvent) {
-        if (Network.isConnect ()) {
+        if (isConnect) {
             try {
                 ProtoFileSender.sendFile (Paths.get (clientFilesPath, nameFile), SENDER.CLIENT, true, Network.getInstance ().getCurrentChannel (), future -> {
                     if (!future.isSuccess ()) {
@@ -95,7 +100,7 @@ public class Controller implements Initializable {
     }
 
     public void downloadCommandNIO(ActionEvent actionEvent) {
-        if (Network.isConnect ()) {
+        if (isConnect) {
             try {
                 Network.getHandle ().setFileName (nameFile);
                 ProtoFileSender.sendFile (Paths.get (clientFilesPath, nameFile), SENDER.CLIENT, false, Network.getInstance ().getCurrentChannel (), future -> {
