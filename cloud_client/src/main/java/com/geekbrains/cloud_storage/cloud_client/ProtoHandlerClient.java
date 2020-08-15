@@ -45,6 +45,7 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+
         if (msg instanceof FileInfo) {
             listFileServer.add ((FileInfo) msg);
         } else {

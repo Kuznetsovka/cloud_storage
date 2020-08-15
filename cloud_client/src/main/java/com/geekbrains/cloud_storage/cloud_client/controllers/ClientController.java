@@ -66,15 +66,15 @@ public class ClientController implements Initializable {
             clickToTable (event,filesTableServer,PATH_SERVER);
         }))).start();
 
+        updateTableClient ();
+        model.setText2 (pathField.getText ());
+
         model.textPathUpdate ().addListener ((obs, oldText, newText) -> {
             updateTableClient ();
         });
 
-        updateTableClient ();
-
         model.textLogin ().addListener ((obs, oldText, newText) -> {
-            updateList (filesTableServer,Paths.get(PATH_SERVER,newText));
-            login.setText (newText);
+            updateListServer();
         });
     }
 
@@ -118,7 +118,8 @@ public class ClientController implements Initializable {
             Path path = Paths.get (strPath).resolve (table.getSelectionModel ().getSelectedItem ().getFilename ());
             if (isDirectory (path)) {
                 updateList (table,path);
-                model.setText2 (String.valueOf (path));
+                if (table.equals (filesTableClient))
+                    model.setText2 (String.valueOf (path));
             }
         }
         if (event.getClickCount () == 1 && table.getSelectionModel ().getSelectedItem () != null)
@@ -166,6 +167,7 @@ public class ClientController implements Initializable {
         filesTableServer.getItems().clear();
         filesTableServer.getItems().addAll(listFileServer);
         filesTableServer.sort();
+
     }
 
 }

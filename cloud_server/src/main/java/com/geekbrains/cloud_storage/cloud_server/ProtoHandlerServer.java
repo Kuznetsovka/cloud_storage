@@ -3,6 +3,8 @@ package com.geekbrains.cloud_storage.cloud_server;
 import com.geekbrains.cloud_storage.common.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
+import io.netty.handler.codec.serialization.ObjectEncoder;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -11,8 +13,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.geekbrains.cloud_storage.common.Config.SIGNAL_DOWNLOAD;
-import static com.geekbrains.cloud_storage.common.Config.SIGNAL_UPLOAD;
+import static com.geekbrains.cloud_storage.common.Config.*;
 
 class ProtoHandlerServer extends ChannelInboundHandlerAdapter {
 
@@ -26,7 +27,6 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter {
     private long fileLength;
     private long receivedFileLength;
     private BufferedOutputStream out;
-    private String serverFilesPath ="./common/src/main/resources/serverFiles/";
     private String fileName;
 
     @Override
@@ -35,7 +35,7 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter {
         while (buf.readableBytes() > 0) {
             switch (currentState) {
                 case LOGIN:
-                    readLogin (buf);
+                    readLogin (ctx,buf);
                     break;
                 case IDLE:
                     readCommand (buf);
@@ -59,10 +59,15 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void readLogin(ByteBuf buf) {
+    private void readLogin(ChannelHandlerContext ctx,ByteBuf buf) {
         byte[] bytes = new byte[buf.readInt ()];
         buf.readBytes(bytes);
         login = new String(bytes, StandardCharsets.UTF_8);
+        try {
+            writeFileList (ctx,Paths.get (PATH_SERVER,login));
+        } catch (IOException e) {
+            e.printStackTrace ();
+        }
         currentState = State.IDLE;
     }
 
@@ -73,14 +78,14 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter {
             if (fileLength == receivedFileLength) {
                 currentState = State.IDLE;
                 System.out.println("File received");
-
-                writeFileList (ctx,Paths.get (serverFilesPath,login));
+                writeFileList (ctx,Paths.get (PATH_SERVER,login));
                 break;
             }
         }
     }
 
     private void writeFileList(ChannelHandlerContext ctx, Path p) throws IOException {
+        ctx.pipeline().addFirst (new ObjectEncoder ());
         List<FileInfo> userPath = Files.list (p).map (path -> {
             try {
                 return new FileInfo (path);
@@ -92,6 +97,8 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter {
         for (FileInfo fileInfo : userPath) {
             ctx.writeAndFlush(fileInfo);
         }
+        ctx.pipeline().removeFirst ();
+        userPath.clear ();
     }
 
     public void readLongFile(ByteBuf buf) {
@@ -115,7 +122,7 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter {
                 currentState = State.IDLE;
                 return true;
             }
-            String path = String.valueOf (Paths.get(serverFilesPath,login));
+            String path = String.valueOf (Paths.get(PATH_SERVER,login));
             FileFunction.createDirectory (path);
             out = new BufferedOutputStream (new FileOutputStream (path + "/" + fileName));
             currentState = State.FILE_LENGTH;
@@ -144,7 +151,7 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter {
     }
 
     private void sending(ChannelHandlerContext ctx) throws IOException {
-        ProtoFileSender.sendFile (Paths.get (serverFilesPath, login, fileName),  SENDER.SERVER, false,ctx.channel (), future -> {
+        ProtoFileSender.sendFile (Paths.get (PATH_SERVER, login, fileName),  SENDER.SERVER, false,ctx.channel (), future -> {
             if (!future.isSuccess ()) {
                 future.cause ().printStackTrace ();
                 ProtoServer.stop();

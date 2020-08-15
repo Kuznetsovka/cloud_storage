@@ -17,6 +17,8 @@ import java.nio.file.Paths;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 
+import static com.geekbrains.cloud_storage.cloud_client.ProtoHandlerClient.listFileServer;
+
 public class Controller implements Initializable {
 
     @FXML
@@ -81,7 +83,7 @@ public class Controller implements Initializable {
                 model.setText4 (tfLogin.getText ());
                 btnConnect.setVisible (false);
             } else {
-                secondField.setText ("Not connect");
+                noConnect.show ();
             }
         }
     }
@@ -97,6 +99,7 @@ public class Controller implements Initializable {
                     if (future.isSuccess ()) {
                         System.out.println ("Файл успешно передан");
                         model.setText4 (tfLogin.getText ());
+                        listFileServer.clear ();
                     }
                 });
             } catch (IOException e) {

@@ -39,7 +39,6 @@ public class ProtoFileSender {
             buf = ByteBufAllocator.DEFAULT.directBuffer (8);
             buf.writeLong (Files.size (path));
             channel.writeAndFlush (buf);
-
             ChannelFuture transferOperationFuture = channel.writeAndFlush (region);
             if (finishListener != null) {
                 transferOperationFuture.addListener (finishListener);

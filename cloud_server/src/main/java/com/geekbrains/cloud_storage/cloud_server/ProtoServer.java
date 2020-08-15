@@ -24,8 +24,6 @@ public class ProtoServer {
                         @Override
                         public void initChannel(SocketChannel ch) {
                             ch.pipeline().addLast(
-                                    //new ObjectDecoder (1024 * 1024 * 100, ClassResolvers.cacheDisabled(null)),
-                                    new ObjectEncoder (),
                                     new AuthHandler (),
                                     new ProtoHandlerServer ());
                         }

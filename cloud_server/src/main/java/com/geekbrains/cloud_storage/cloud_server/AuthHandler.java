@@ -48,12 +48,12 @@ public class  AuthHandler extends ChannelInboundHandlerAdapter {
             login = str.split(" ")[1];
             buf.writeInt (login.length ());
             buf.writeBytes (login.getBytes (StandardCharsets.UTF_8));
-            ctx.fireChannelRead (buf);
             password = str.split(" ")[2];
             id = SqlClient.getIdUser (login, password);
             if (id==0){
                 closeChannel (ctx);
             }
+            ctx.fireChannelRead (buf);
             System.out.println("Подключился клиент id = " + id);
             authOk = true;
             ctx.pipeline ().remove (this);

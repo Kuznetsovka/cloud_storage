@@ -11,6 +11,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
