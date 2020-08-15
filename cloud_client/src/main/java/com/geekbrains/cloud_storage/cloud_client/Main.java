@@ -2,7 +2,6 @@ package com.geekbrains.cloud_storage.cloud_client;
 
 import com.geekbrains.cloud_storage.cloud_client.controllers.ClientController;
 import com.geekbrains.cloud_storage.cloud_client.controllers.Controller;
-import com.geekbrains.cloud_storage.cloud_client.controllers.ServerController;
 import com.geekbrains.cloud_storage.common.AppModel;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -22,8 +21,6 @@ public class Main extends Application {
                 return new Controller(model);
             } else if (type == ClientController.class) {
                 return new ClientController(model);
-            } else if (type == ServerController.class) {
-                return new ServerController(model);
             } else {
                 try {
                     return type.newInstance() ;
@@ -42,9 +39,6 @@ public class Main extends Application {
         secondLoader.setControllerFactory (controllerFactory);
         Parent secondUI = secondLoader.load();
 
-        FXMLLoader thirdLoader = new FXMLLoader(getClass().getResource("/server_panel.fxml"));
-        thirdLoader.setControllerFactory (controllerFactory);
-        Parent thirdUI = thirdLoader.load();
         primaryStage.setTitle("Cloudy");
         primaryStage.setScene(new Scene (firstUI));
         primaryStage.show();

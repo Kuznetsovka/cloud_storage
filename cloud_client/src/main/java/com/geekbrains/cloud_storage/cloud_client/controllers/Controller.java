@@ -78,6 +78,7 @@ public class Controller implements Initializable {
             }
             if (isConnect) {
                 secondField.setText ("Connect");
+                model.setText4 (tfLogin.getText ());
                 btnConnect.setVisible (false);
             } else {
                 secondField.setText ("Not connect");
@@ -95,6 +96,7 @@ public class Controller implements Initializable {
                     }
                     if (future.isSuccess ()) {
                         System.out.println ("Файл успешно передан");
+                        model.setText4 (tfLogin.getText ());
                     }
                 });
             } catch (IOException e) {

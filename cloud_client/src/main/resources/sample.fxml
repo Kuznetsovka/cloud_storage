@@ -13,7 +13,6 @@
 
     <HBox VBox.vgrow="ALWAYS">
             <fx:include fx:id="clientPanel" source="client_panel.fxml" HBox.hgrow="ALWAYS" />
-            <fx:include fx:id="serverPanel" source="server_panel.fxml" HBox.hgrow="ALWAYS" />
     </HBox>
     <HBox spacing="5.0">
         <Button  text="Connect" fx:id="btnConnect" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#connect" />

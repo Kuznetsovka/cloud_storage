@@ -111,21 +111,4 @@ public class FileController implements Initializable {
             alert.showAndWait();
         }
     }
-
-//    public void selectDiskAction(ActionEvent actionEvent) {
-//        ComboBox<String> element = (ComboBox<String>) actionEvent.getSource();
-//        updateList(Paths.get(element.getSelectionModel().getSelectedItem()));
-//    }
-//
-//    public String getSelectedFilename() {
-//        if (!filesTable.isFocused()) {
-//            return null;
-//        }
-//        return filesTable.getSelectionModel().getSelectedItem().getFilename();
-//    }
-//
-//    public StringProperty firstFieldTextProperty() {
-//        StringProperty o = null;
-//        return o;
-//    };
 }

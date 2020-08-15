@@ -74,25 +74,4 @@ public class FileInfo implements Serializable {
         }
     }
 
-//    public static void serializer(FileInfo fi) {
-//        try {
-//            FileInputStream fos = new FileInputStream("FileInfoIn.ser");
-//            ObjectOutputStream out = new ObjectOutputStream (new OutputStream (fos));
-//            out.writeObject(fi);
-//            out.flush();
-//            out.close();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-//    public static FileInfo deserializer() {
-//        try (FileInputStream fis = new FileInputStream("FileInfoIn.ser");
-//             ObjectInputStream in = new ObjectInputStream(fis)){
-//            return (FileInfo) in.readObject();
-//
-//        } catch (Exception ex) {
-//            System.err.println("Erreur de lecture " + ex);
-//        }
-//    return null;
-//    }
 }
