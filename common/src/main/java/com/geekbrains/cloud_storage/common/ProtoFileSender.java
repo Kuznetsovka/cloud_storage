@@ -3,13 +3,14 @@ package com.geekbrains.cloud_storage.common;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.*;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import static com.geekbrains.cloud_storage.common.Config.SIGNAL_DOWNLOAD;
+import static com.geekbrains.cloud_storage.common.Config.SIGNAL_UPLOAD;
 
-public class ProtoFileSender implements Config {
+public class ProtoFileSender {
     public static void sendFile(Path path,SENDER sender, boolean upload, Channel channel, ChannelFutureListener finishListener) throws IOException {
         ByteBuf buf;
         byte signal = upload ? SIGNAL_UPLOAD:SIGNAL_DOWNLOAD;

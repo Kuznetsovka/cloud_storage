@@ -11,7 +11,10 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
-class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements Config {
+import static com.geekbrains.cloud_storage.common.Config.SIGNAL_DOWNLOAD;
+import static com.geekbrains.cloud_storage.common.Config.SIGNAL_UPLOAD;
+
+class ProtoHandlerServer extends ChannelInboundHandlerAdapter {
 
     public enum State {
         LOGIN,IDLE, NAME_LENGTH, NAME, FILE_LENGTH, FILE

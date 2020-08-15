@@ -2,6 +2,7 @@ package com.geekbrains.cloud_storage.cloud_client.controllers;
 
 import com.geekbrains.cloud_storage.common.AppModel;
 import com.geekbrains.cloud_storage.common.FileInfo;
+import com.geekbrains.cloud_storage.common.SENDER;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -33,6 +34,7 @@ public class ServerController extends FileController implements Initializable {
         model.textLogin ().addListener ((obs, oldText, newText) -> {
             updateList ();
         });
+        type = SENDER.SERVER;
     }
 
     public void updateList() {

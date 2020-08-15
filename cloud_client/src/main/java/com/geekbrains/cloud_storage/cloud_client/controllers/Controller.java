@@ -48,9 +48,11 @@ public class Controller implements Initializable {
             nameFile = newText;
             secondField.setText ("Выбран файл: " + Paths.get (clientFilesPath, nameFile).toString ());
         });
+
         model.textPathSelected ().addListener ((obs, oldText, newText) -> {
             clientFilesPath = newText;
-            Network.getHandle ().setClientFilesPath(clientFilesPath);
+            if (isConnect)
+                Network.getHandle ().setClientFilesPath(clientFilesPath);
             secondField.setText ("Выбран файл: " + Paths.get (clientFilesPath, nameFile).toString ());
         });
     }
@@ -74,9 +76,12 @@ public class Controller implements Initializable {
             } catch (InterruptedException e) {
                 e.printStackTrace ();
             }
-            secondField.setText ("Connect");
-            isConnect = true;
-            btnConnect.setVisible (false);
+            if (isConnect) {
+                secondField.setText ("Connect");
+                btnConnect.setVisible (false);
+            } else {
+                secondField.setText ("Not connect");
+            }
         }
     }
 

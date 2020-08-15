@@ -2,6 +2,7 @@ package com.geekbrains.cloud_storage.cloud_client.controllers;
 
 import com.geekbrains.cloud_storage.common.AppModel;
 import com.geekbrains.cloud_storage.common.FileInfo;
+import com.geekbrains.cloud_storage.common.SENDER;
 import javafx.beans.property.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -13,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+import static com.geekbrains.cloud_storage.common.Config.PATH_SERVER;
 import static java.nio.file.Files.isDirectory;
 import static javafx.application.Platform.*;
 
@@ -21,6 +23,8 @@ public class FileController implements Initializable {
     TableView<FileInfo> filesTable;
 
     String pathPanel = "";
+
+    SENDER type;
 
     @FXML
     TextField pathField;
@@ -66,7 +70,9 @@ public class FileController implements Initializable {
                 Path path = Paths.get (pathField.getText ()).resolve (filesTable.getSelectionModel ().getSelectedItem ().getFilename ());
                 if (isDirectory (path)) {
                     updateList (path);
-                    if (!path.toString ().contains ("server"))
+                    if (type == SENDER.SERVER)
+                        model.setText2 (PATH_SERVER);
+                    else
                         model.setText2 (String.valueOf (path));
                 }
             }
@@ -76,7 +82,9 @@ public class FileController implements Initializable {
                 }
         }))).start();
         updateList();
-        if (!pathField.getText ().contains ("server"))
+        if (type == SENDER.SERVER)
+            model.setText2 (PATH_SERVER);
+        else
             model.setText2 (pathField.getText ());
     }
 
