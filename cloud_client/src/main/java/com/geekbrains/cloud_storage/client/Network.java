@@ -1,6 +1,7 @@
 package com.geekbrains.cloud_storage.client;
 
 import com.geekbrains.cloud_storage.client.controllers.Controller;
+import com.geekbrains.common.common.AppModel;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -11,12 +12,15 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 
 public class Network {
-    private static ProtoHandlerClient handle = new ProtoHandlerClient ();
+    private static ProtoHandlerClient handle;
     private static Network ourInstance = new Network();
 
     public static ProtoHandlerClient getHandle() {
@@ -33,18 +37,21 @@ public class Network {
         return currentChannel;
     }
 
-    public void start(Controller controller, CountDownLatch countDownLatch, String login, String password) {
+    public void start(Controller controller, CountDownLatch countDownLatch, String login, String password, AppModel model) {
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             Bootstrap clientBootstrap = new Bootstrap();
+            handle = new ProtoHandlerClient (model);
             clientBootstrap.group(group)
                     .channel(NioSocketChannel.class)
                     .remoteAddress(new InetSocketAddress("localhost", 8189))
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) {
-                            socketChannel.pipeline().addLast(handle);
-                            controller.setConnect(true);
+                            socketChannel.pipeline().addLast(
+                                    handle);
+                            boolean isConnect = true;
+                            controller.setConnect(isConnect);
                             currentChannel = socketChannel;
                         }
                     });
@@ -53,7 +60,11 @@ public class Network {
             countDownLatch.countDown();
             channelFuture.channel().closeFuture().sync();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println ("Нет соединения!");
+            countDownLatch.countDown ();
+            boolean isConnect = false;
+            controller.setConnect (isConnect);
+            return;
         } finally {
             try {
                 group.shutdownGracefully().sync();

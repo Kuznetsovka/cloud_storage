@@ -16,7 +16,7 @@
             <fx:include fx:id="serverPanel" source="server_panel.fxml" HBox.hgrow="ALWAYS" />
     </HBox>
     <HBox spacing="5.0">
-        <Button  text="Connect" fx:id="connect" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#connect" />
+        <Button  text="Connect" fx:id="btnConnect" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#connect" />
         <Button text="Authorise" fx:id="auth" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#autorize"/>
         <Button  text="Upload" fx:id="upload" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#uploadCommandNIO" />
         <Button text="Download" fx:id="download" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#downloadCommandNIO"/>

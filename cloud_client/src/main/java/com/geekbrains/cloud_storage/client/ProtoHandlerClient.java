@@ -1,16 +1,27 @@
 package com.geekbrains.cloud_storage.client;
 
+import com.geekbrains.common.common.AppModel;
 import com.geekbrains.common.common.FileFunction;
+import com.geekbrains.common.common.FileInfo;
 import com.geekbrains.common.common.ProtoAction;
+import com.sun.deploy.net.MessageHeader;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+
 import java.io.*;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.geekbrains.common.common.Config.SIGNAL_DOWNLOAD;
 
 public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements ProtoAction {
 
     private String nameFile;
     private String clientFilesPath;
+    public static List<FileInfo> listFileServer= new ArrayList<> ();
 
     public void setFileName(String s){
         nameFile = s;
@@ -21,18 +32,32 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
     }
 
     public enum State {
-        IDLE, FILE
+        IDLE, LONG,FILE
     }
     private State currentState = State.IDLE;
     private long fileLength;
     private long receivedFileLength;
     private BufferedOutputStream out;
+    private AppModel model;
 
+    public ProtoHandlerClient(AppModel model) {
+        this.model = model;
+    }
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        ByteBuf buf = ((ByteBuf) msg);
+        ctx.pipeline ().addFirst (new ObjectDecoder (1024 * 1024 * 100, ClassResolvers.cacheDisabled (null)));
+        if (msg instanceof FileInfo) {
+            listFileServer.add ((FileInfo) msg);//TODO
+        } else {
+            ctx.pipeline ().removeFirst ();
+            buf = ((ByteBuf) msg);
+            readFile (buf);
+        }
+    }
+
+    private void readFile(ByteBuf buf) throws IOException {
         while (buf.readableBytes() > 0) {
-            if (currentState == State.IDLE) {
+            if (currentState == State.LONG) {
                 readLongFile (buf);
             }
             if (currentState == State.FILE) {
@@ -42,6 +67,13 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
         if (buf.readableBytes() == 0) {
             buf.release();
         }
+    }
+
+
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        Thread.sleep (500);
+        model.setText4 ("");
     }
 
     @Override

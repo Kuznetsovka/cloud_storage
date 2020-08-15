@@ -13,8 +13,6 @@ public class ProtoFileSender implements Config {
     public static void sendFile(Path path,SENDER sender, boolean upload, Channel channel, ChannelFutureListener finishListener) throws IOException {
         ByteBuf buf;
         byte signal = upload ? SIGNAL_UPLOAD:SIGNAL_DOWNLOAD;
-        if (sender == SENDER.CLIENT) {
-
             buf = ByteBufAllocator.DEFAULT.directBuffer (1);
             buf.writeByte (signal);
             channel.writeAndFlush (buf);
@@ -22,7 +20,7 @@ public class ProtoFileSender implements Config {
 //            buf = ByteBufAllocator.DEFAULT.directBuffer (4);
 //            buf.writeInt (id);
 //            channel.writeAndFlush (buf);
-
+        if (sender == SENDER.CLIENT) {
             byte[] filenameBytes = path.getFileName ().toString ().getBytes (StandardCharsets.UTF_8);
             buf = ByteBufAllocator.DEFAULT.directBuffer (4);
             buf.writeInt (filenameBytes.length);

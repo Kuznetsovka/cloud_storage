@@ -12,6 +12,9 @@ import lombok.Getter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static com.geekbrains.cloud_storage.client.ProtoHandlerClient.listFileServer;
+import static com.geekbrains.common.common.Config.PATH_SERVER;
+
 @Getter
 public class ServerController extends FileController implements Initializable {
 
@@ -24,28 +27,24 @@ public class ServerController extends FileController implements Initializable {
     @FXML
     public TextField tf_server;
 
-    protected String pathPanel="./common/src/main/resources/serverFiles";
+    protected String pathPanel=PATH_SERVER;
 
     public ServerController(AppModel model) {
         super();
         this.model = model;
         model.textLogin ().addListener ((obs, oldText, newText) -> {
-            updateList (Paths.get (pathPanel + "/" + newText));
+            pathField.setText (newText);
+            updateListServer();
         });
     }
 
-    public void updateList() {
-        updateList(Paths.get(pathPanel));
+    public void updateListServer() {
+        filesTable.getItems().clear();
+        filesTable.getItems().addAll(listFileServer);
+        filesTable.sort();
     }
 
     public StringProperty textNameFile() {
         return tf_client.textProperty ();
-    }
-
-    public void btnPathUpAction(ActionEvent actionEvent) {
-        Path upperPath = Paths.get(pathField.getText()).getParent();
-        if (upperPath != null) {
-            updateList(upperPath);
-        }
     }
 }
