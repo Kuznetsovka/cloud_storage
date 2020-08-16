@@ -16,7 +16,8 @@ public class ClientController extends FileController implements Initializable {
         super();
         this.model = model;
         model.textPathUpdate ().addListener ((obs, oldText, newText) -> {
-            updateList (Paths.get (newText));
+            if(newText!="")
+                updateList (Paths.get (newText));
         });
     }
 

@@ -111,6 +111,7 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
         ctx.flush ();
         currentState = State.IDLE;
         userPath.clear ();
+        System.out.println ("Remove Encoder");
         ctx.pipeline().removeFirst ();
 
         } catch (IOException e) {

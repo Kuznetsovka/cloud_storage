@@ -118,15 +118,10 @@ public class Controller implements Initializable {
         if (isConnect) {
             try {
                 Network.getHandle ().setFileName (nameFile);
-                ProtoFileSender.sendFile (Paths.get (clientFilesPath, nameFile), SENDER.CLIENT, false, Network.getInstance ().getCurrentChannel (), future -> {
+                ProtoFileSender.sendFile (Paths.get (nameFile), SENDER.CLIENT, false, Network.getInstance ().getCurrentChannel (), future -> {
                     if (!future.isSuccess ()) {
                         future.cause ().printStackTrace ();
                         Network.getInstance ().stop ();
-                    }
-                    if (future.isSuccess ()) {
-                        System.out.println ("Файл скачался!");
-                        Thread.sleep (500);
-                        model.setText3 (clientFilesPath);
                     }
                 });
             } catch (IOException e) {

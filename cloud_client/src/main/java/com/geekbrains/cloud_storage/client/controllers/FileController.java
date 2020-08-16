@@ -35,6 +35,27 @@ public class FileController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        fillTable ();
+        new Thread (()-> runLater(() -> filesTable.setOnMouseClicked (event -> {
+            if (event.getClickCount () == 2 && filesTable.getSelectionModel ().getSelectedItem () != null) {
+                Path path = Paths.get (pathField.getText ()).resolve (filesTable.getSelectionModel ().getSelectedItem ().getFilename ());
+                if (isDirectory (path)) {
+                    updateList (path);
+                    if (!path.toString ().contains ("server"))
+                        model.setText2 (String.valueOf (path));
+                }
+            }
+            if (event.getClickCount () == 1 && filesTable.getSelectionModel ().getSelectedItem () != null)
+                if (filesTable.getSelectionModel ().getSelectedItem ().getType () == FileInfo.FileType.FILE) {
+                    model.setText1 (String.valueOf (filesTable.getSelectionModel ().getSelectedItem ().getFilename ()));
+                }
+        }))).start();
+        updateList();
+        if (!pathField.getText ().contains ("server"))
+            model.setText2 (pathField.getText ());
+    }
+
+    private void fillTable() {
         TableColumn<FileInfo, String> filenameColumn = new TableColumn<>("Название");
         filenameColumn.setCellValueFactory(param -> new SimpleStringProperty (param.getValue().getFilename()));
         filenameColumn.setPrefWidth(300.0f);
@@ -63,23 +84,6 @@ public class FileController implements Initializable {
         fileDateColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getLastModified().format(dtf)));
         fileDateColumn.setPrefWidth(120);
         filesTable.getColumns().addAll(filenameColumn, fileSizeColumn, fileDateColumn);
-        new Thread (()-> runLater(() -> filesTable.setOnMouseClicked (event -> {
-            if (event.getClickCount () == 2 && filesTable.getSelectionModel ().getSelectedItem () != null) {
-                Path path = Paths.get (pathField.getText ()).resolve (filesTable.getSelectionModel ().getSelectedItem ().getFilename ());
-                if (isDirectory (path)) {
-                    updateList (path);
-                    if (!path.toString ().contains ("server"))
-                        model.setText2 (String.valueOf (path));
-                }
-            }
-            if (event.getClickCount () == 1 && filesTable.getSelectionModel ().getSelectedItem () != null)
-                if (filesTable.getSelectionModel ().getSelectedItem ().getType () == FileInfo.FileType.FILE) {
-                    model.setText1 (String.valueOf (filesTable.getSelectionModel ().getSelectedItem ().getFilename ()));
-                }
-        }))).start();
-        updateList();
-        if (!pathField.getText ().contains ("server"))
-            model.setText2 (pathField.getText ());
     }
 
     public void updateList() {
@@ -93,6 +97,7 @@ public class FileController implements Initializable {
             filesTable.getItems().clear();
             filesTable.getItems().addAll(Files.list(path).map(FileInfo::new).collect(Collectors.toList()));
             filesTable.sort();
+            model.setText3 ("");
         } catch (IOException e) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Не удалось обновить список файлов", ButtonType.OK);
             alert.showAndWait();

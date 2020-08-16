@@ -131,6 +131,7 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
             if (fileLength == receivedFileLength) {
                 currentState = State.IDLE;
                 System.out.println("File received");
+                model.setText3 (clientFilesPath);
                 out.close();
                 break;
             }
