@@ -81,7 +81,6 @@ public class Controller implements Initializable {
             if (isConnect) {
                 isConnect = true;
                 secondField.setText ("Connect");
-                model.setText4 (tfLogin.getText ());
                 btnConnect.setVisible (false);
             } else {
                 noConnect.show ();

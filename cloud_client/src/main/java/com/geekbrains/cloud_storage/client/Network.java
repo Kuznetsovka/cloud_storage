@@ -41,7 +41,7 @@ public class Network {
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             Bootstrap clientBootstrap = new Bootstrap();
-            handle = new ProtoHandlerClient (model);
+            handle = new ProtoHandlerClient (model,login);
             clientBootstrap.group(group)
                     .channel(NioSocketChannel.class)
                     .remoteAddress(new InetSocketAddress("localhost", 8189))

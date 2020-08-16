@@ -3,14 +3,10 @@ package com.geekbrains.cloud_storage.client.controllers;
 import com.geekbrains.common.common.AppModel;
 import com.geekbrains.common.common.FileInfo;
 import javafx.beans.property.StringProperty;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import lombok.Getter;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static com.geekbrains.cloud_storage.client.ProtoHandlerClient.listFileServer;
 import static com.geekbrains.common.common.Config.PATH_SERVER;
@@ -39,9 +35,11 @@ public class ServerController extends FileController implements Initializable {
     }
 
     public void updateListServer() {
+        filesTable.setVisible (true);
         filesTable.getItems().clear();
         filesTable.getItems().addAll(listFileServer);
         filesTable.sort();
+        listFileServer.clear();
     }
 
     public StringProperty textNameFile() {

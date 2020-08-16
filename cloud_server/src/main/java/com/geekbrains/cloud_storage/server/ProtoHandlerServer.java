@@ -19,11 +19,13 @@ import java.util.stream.Collectors;
 
 class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAction,Config {
 
+    private int loginLength;
+
     public enum State {
-        LOGIN,IDLE, NAME_LENGTH, NAME, FILE_LENGTH, FILE
+        LOGIN_LENGTH,LOGIN,IDLE, NAME_LENGTH, NAME, FILE_LENGTH, FILE
     }
     private byte command;
-    private State currentState = State.LOGIN;
+    private State currentState = State.LOGIN_LENGTH;
     private String login;
     private int nextLength;
     private long fileLength;
@@ -36,6 +38,9 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
         ByteBuf buf = ((ByteBuf) msg);
         while (buf.readableBytes() > 0) {
             switch (currentState) {
+                case LOGIN_LENGTH:
+                    readLoginLength (buf);
+                    break;
                 case LOGIN:
                     readLogin (ctx,buf);
                     break;
@@ -61,26 +66,45 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
         }
     }
 
+    private void readLoginLength(ByteBuf buf) {
+        if (buf.readableBytes() >= 4) {
+            loginLength = buf.readInt();
+            System.out.println("STATE: Get login length " + loginLength);
+            currentState = State.LOGIN;
+        }
+    }
+
     private void readLogin(ChannelHandlerContext ctx,ByteBuf buf) {
-        byte[] bytes = new byte[buf.readInt ()];
-        buf.readBytes(bytes);
-        login = new String(bytes, StandardCharsets.UTF_8);
-        writeFileList (ctx,Paths.get (PATH_SERVER,login));
-        currentState = State.IDLE;
+        if (buf.readableBytes() >= loginLength) {
+            byte[] bytes = new byte[loginLength];
+            buf.readBytes (bytes);
+            login = new String (bytes, StandardCharsets.UTF_8);
+            writeFileList (ctx, Paths.get (PATH_SERVER, login));
+            currentState = State.IDLE;
+        }
     }
 
     private void writeFileList(ChannelHandlerContext ctx, Path p) {
         try {
-            ctx.pipeline().addFirst (new ObjectEncoder ());
             List<FileInfo> userPath = Files.list (p).map (path -> {
             return new FileInfo (path);
         }).collect (Collectors.toList ());
 
-        for (FileInfo fileInfo : userPath) {
             ByteBuf buf = ByteBufAllocator.DEFAULT.directBuffer (1);
-            ctx.writeAndFlush (buf.writeByte (-1));
-            ctx.writeAndFlush(fileInfo);
+            buf.writeByte (SIGNAL_UPDATE);
+            ctx.write (buf);
+            ctx.flush ();
+
+            buf = ByteBufAllocator.DEFAULT.directBuffer (userPath.size ());
+            buf.writeInt (userPath.size ());
+            ctx.write (buf);
+            ctx.flush ();
+
+            ctx.pipeline().addFirst (new ObjectEncoder ());
+        for (FileInfo fileInfo : userPath) {
+            ctx.write(fileInfo);
         }
+        ctx.flush ();
         ctx.pipeline().removeFirst ();
         userPath.clear ();
         } catch (IOException e) {

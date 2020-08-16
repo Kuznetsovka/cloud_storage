@@ -7,5 +7,5 @@
     <HBox>
         <TextField fx:id="pathField" editable="false" HBox.hgrow="ALWAYS" />
     </HBox>
-    <TableView fx:id="filesTable" VBox.vgrow="ALWAYS" />
+    <TableView fx:id="filesTable" VBox.vgrow="ALWAYS" visible="false" />
 </VBox>

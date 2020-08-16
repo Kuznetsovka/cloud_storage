@@ -6,6 +6,7 @@ import com.geekbrains.common.common.FileInfo;
 import com.geekbrains.common.common.ProtoAction;
 import com.sun.deploy.net.MessageHeader;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
@@ -14,67 +15,96 @@ import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.geekbrains.common.common.Config.SIGNAL_DOWNLOAD;
 
 public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements ProtoAction {
 
     private String nameFile;
+    private String login;
     private String clientFilesPath;
     public static List<FileInfo> listFileServer= new ArrayList<> ();
-
-    public void setFileName(String s){
-        nameFile = s;
-    }
-
-    public void setClientFilesPath(String clientFilesPath) {
-        this.clientFilesPath = clientFilesPath;
-    }
-
-    public enum State {
-        IDLE, LONG,FILE
-    }
+    private int countFileList;
+    private int listItem;
     private State currentState = State.IDLE;
     private long fileLength;
     private long receivedFileLength;
     private BufferedOutputStream out;
     private AppModel model;
+    private ByteBuf buf;
 
-    public ProtoHandlerClient(AppModel model) {
+    public enum State {
+        IDLE,COUNT_LIST,UPDATE,LONG, FILE
+    }
+    public ProtoHandlerClient(AppModel model, String login) {
         this.model = model;
+        this.login = login;
     }
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        ctx.pipeline ().addFirst (new ObjectDecoder (1024 * 1024 * 100, ClassResolvers.cacheDisabled (null)));
-        if (msg instanceof FileInfo) {
-            listFileServer.add ((FileInfo) msg);//TODO
-        } else {
-            ctx.pipeline ().removeFirst ();
+        if (currentState!=State.UPDATE) {
             buf = ((ByteBuf) msg);
-            readFile (buf);
+        } else {
+            buf = ByteBufAllocator.DEFAULT.directBuffer (1);
+            buf.writeInt (1);
         }
-    }
-
-    private void readFile(ByteBuf buf) throws IOException {
         while (buf.readableBytes() > 0) {
-            if (currentState == State.LONG) {
-                readLongFile (buf);
-            }
-            if (currentState == State.FILE) {
-                writeFile(buf);
+            switch (currentState) {
+                case IDLE:
+                    readCommand (buf);
+                    break;
+                case COUNT_LIST:
+                    readInt (ctx,buf);
+                    break;
+                case UPDATE:
+                    readUpdate (ctx,msg);
+                    break;
+                case LONG:
+                    readLongFile (buf);
+                    break;
+                case FILE:
+                    writeFile (buf);
+                    break;
             }
         }
         if (buf.readableBytes() == 0) {
             buf.release();
         }
     }
+        private void readUpdate(ChannelHandlerContext ctx,Object msg){
+            if (msg instanceof FileInfo) {
+                listItem++;
+                buf.readInt();
+                listFileServer.add ((FileInfo) msg);
+                if (listItem == countFileList) {
+                    listItem = 0;
+                    currentState = State.IDLE;
+                    model.setText4 (login);
+                    ctx.pipeline ().removeFirst ();
+                }
+            }
+        }
 
+        private void readInt(ChannelHandlerContext ctx,ByteBuf buf) throws IOException {
+            if (buf.readableBytes () >= 4) {
+                countFileList = buf.readInt ();
+                System.out.println ("STATE: Count list files " + countFileList);
+                currentState = State.UPDATE;
+                ctx.pipeline ().addFirst (new ObjectDecoder (1024 * 1024 * 100, ClassResolvers.cacheDisabled (null)));
+            }
+        }
 
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        Thread.sleep (500);
-        model.setText4 ("");
-    }
+        @Override
+        public void readCommand(ByteBuf buf) {
+            byte readed = buf.readByte ();
+            if (readed != 15) {
+                currentState = State.LONG;
+            } else {
+                currentState = State.COUNT_LIST;
+            }
+        }
 
     @Override
     public void readLongFile(ByteBuf buf)  {
@@ -127,9 +157,12 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
 
     }
 
-    @Override
-    public void readCommand(ByteBuf buf) {
+    public void setFileName(String s){
+        nameFile = s;
+    }
 
+    public void setClientFilesPath(String clientFilesPath) {
+        this.clientFilesPath = clientFilesPath;
     }
 
 }
