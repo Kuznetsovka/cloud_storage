@@ -1,4 +1,4 @@
-package com.geekbrains.common.common;
+package com.geekbrains.common_files.common;
 
 import javafx.beans.property.*;
 

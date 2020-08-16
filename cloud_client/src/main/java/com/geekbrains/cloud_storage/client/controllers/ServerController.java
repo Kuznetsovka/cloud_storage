@@ -1,7 +1,7 @@
 package com.geekbrains.cloud_storage.client.controllers;
-
-import com.geekbrains.common.common.AppModel;
-import com.geekbrains.common.common.FileInfo;
+import com.geekbrains.common_files.common.AppModel;
+import com.geekbrains.common_files.common.Config;
+import com.geekbrains.common_files.common.FileInfo;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -9,10 +9,9 @@ import javafx.scene.control.*;
 import lombok.Getter;
 
 import static com.geekbrains.cloud_storage.client.ProtoHandlerClient.listFileServer;
-import static com.geekbrains.common.common.Config.PATH_SERVER;
 
 @Getter
-public class ServerController extends FileController implements Initializable {
+public class ServerController extends FileController implements Initializable, Config {
 
     @FXML
     TableView<FileInfo> filesTable;

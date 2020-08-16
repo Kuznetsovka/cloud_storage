@@ -25,7 +25,7 @@
     <dependencies>
         <dependency>
             <groupId>com.Geekbrains</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>common_files</artifactId>
             <version>1</version>
             <scope>compile</scope>
         </dependency>

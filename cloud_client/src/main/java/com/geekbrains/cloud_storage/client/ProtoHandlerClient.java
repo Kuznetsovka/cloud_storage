@@ -1,10 +1,9 @@
 package com.geekbrains.cloud_storage.client;
 
-import com.geekbrains.common.common.AppModel;
-import com.geekbrains.common.common.FileFunction;
-import com.geekbrains.common.common.FileInfo;
-import com.geekbrains.common.common.ProtoAction;
-import com.sun.deploy.net.MessageHeader;
+import com.geekbrains.common_files.common.AppModel;
+import com.geekbrains.common_files.common.FileFunction;
+import com.geekbrains.common_files.common.FileInfo;
+import com.geekbrains.common_files.common.ProtoAction;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.*;
@@ -15,10 +14,6 @@ import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static com.geekbrains.common.common.Config.SIGNAL_DOWNLOAD;
 
 public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements ProtoAction {
 

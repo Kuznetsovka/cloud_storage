@@ -1,9 +1,7 @@
 package com.geekbrains.cloud_storage.client.controllers;
 
-import com.geekbrains.common.common.AppModel;
 import com.geekbrains.cloud_storage.client.Network;
-import com.geekbrains.common.common.ProtoFileSender;
-import com.geekbrains.common.common.SENDER;
+import com.geekbrains.common_files.common.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import javafx.application.Platform;
@@ -18,9 +16,8 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
-import static com.geekbrains.common.common.Config.SIGNAL_UPDATE;
 
-public class Controller implements Initializable {
+public class Controller implements Initializable, Config {
 
     @FXML
     public Button upload;
@@ -45,6 +42,7 @@ public class Controller implements Initializable {
     public Controller(AppModel model) {
         this.model = model;
     }
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -73,7 +71,7 @@ public class Controller implements Initializable {
     public synchronized void connect (ActionEvent actionEvent) {
         if (!isConnect) {
             CountDownLatch networkStarter = new CountDownLatch (1);
-            new Thread (() -> Network.getInstance ().start (this, networkStarter, tfLogin.getText (), tfPassword.getText (), model)).start ();
+            new Thread (() -> Network.getInstance ().start (this, networkStarter, tfLogin.getText (), tfPassword.getText (),model)).start ();
             try {
                 networkStarter.await ();
             } catch (InterruptedException e) {

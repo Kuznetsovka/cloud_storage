@@ -11,7 +11,7 @@
     <modules>
         <module>cloud_client</module>
         <module>cloud_server</module>
-        <module>common</module>
+        <module>common_files</module>
     </modules>
     <build>
       <plugins>
