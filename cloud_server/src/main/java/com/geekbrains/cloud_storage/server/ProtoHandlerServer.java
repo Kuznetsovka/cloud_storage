@@ -82,6 +82,9 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
             byte[] bytes = new byte[loginLength];
             buf.readBytes (bytes);
             login = new String (bytes, StandardCharsets.UTF_8);
+            Path path = Paths.get (PATH_SERVER, login);
+            if (Files.notExists (path))
+                FileFunction.createDirectory (String.valueOf (path));
             writeFileList (ctx, Paths.get (PATH_SERVER, login));
             currentState = State.IDLE;
         }
