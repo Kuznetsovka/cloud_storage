@@ -4,6 +4,8 @@ import com.geekbrains.common.common.AppModel;
 import com.geekbrains.cloud_storage.client.Network;
 import com.geekbrains.common.common.ProtoFileSender;
 import com.geekbrains.common.common.SENDER;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -18,6 +20,7 @@ import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 
 import static com.geekbrains.cloud_storage.client.ProtoHandlerClient.listFileServer;
+import static com.geekbrains.common.common.Config.SIGNAL_UPDATE;
 
 public class Controller implements Initializable {
 
@@ -98,9 +101,9 @@ public class Controller implements Initializable {
                     }
                     if (future.isSuccess ()) {
                         System.out.println ("Файл успешно передан");
-                        Thread.sleep (500);
-                        model.setText4 (tfLogin.getText ());
-                        listFileServer.clear ();
+                        ByteBuf buf = ByteBufAllocator.DEFAULT.directBuffer (1);
+                        buf.writeByte (SIGNAL_UPDATE);
+                        Network.getInstance ().getCurrentChannel ().writeAndFlush (buf);
                     }
                 });
             } catch (IOException e) {

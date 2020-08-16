@@ -78,6 +78,7 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
                 listItem++;
                 buf.readInt();
                 listFileServer.add ((FileInfo) msg);
+                System.out.println (((FileInfo) msg).getFilename ());
                 if (listItem == countFileList) {
                     listItem = 0;
                     currentState = State.IDLE;

@@ -29,8 +29,10 @@ public class ServerController extends FileController implements Initializable {
         super();
         this.model = model;
         model.textLogin ().addListener ((obs, oldText, newText) -> {
-            pathField.setText (newText);
-            updateListServer();
+            if (newText!="") {
+                pathField.setText (newText);
+                updateListServer ();
+            }
         });
     }
 
@@ -40,6 +42,7 @@ public class ServerController extends FileController implements Initializable {
         filesTable.getItems().addAll(listFileServer);
         filesTable.sort();
         listFileServer.clear();
+        model.setText4 ("");
     }
 
     public StringProperty textNameFile() {

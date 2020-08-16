@@ -22,7 +22,7 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
     private int loginLength;
 
     public enum State {
-        LOGIN_LENGTH,LOGIN,IDLE, NAME_LENGTH, NAME, FILE_LENGTH, FILE
+        LOGIN_LENGTH,LOGIN,IDLE, NAME_LENGTH, NAME, FILE_LENGTH, FILE,UPDATE
     }
     private byte command;
     private State currentState = State.LOGIN_LENGTH;
@@ -58,6 +58,9 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
                     break;
                 case FILE:
                     writeFile (buf);
+                    break;
+                case UPDATE:
+                    writeFileList (ctx,Paths.get (PATH_SERVER, login));
                     break;
             }
         }
@@ -103,13 +106,17 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
             ctx.pipeline().addFirst (new ObjectEncoder ());
         for (FileInfo fileInfo : userPath) {
             ctx.write(fileInfo);
+            System.out.println (fileInfo.getFilename ());
         }
         ctx.flush ();
-        ctx.pipeline().removeFirst ();
+        currentState = State.IDLE;
         userPath.clear ();
+        ctx.pipeline().removeFirst ();
+
         } catch (IOException e) {
             e.printStackTrace ();
         }
+
     }
 
     @Override
@@ -118,7 +125,7 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
             out.write(buf.readByte());
             receivedFileLength++;
             if (fileLength == receivedFileLength) {
-                currentState = State.IDLE;
+                currentState = State.UPDATE;
                 System.out.println("File received");
                 out.close();
                 break;
@@ -174,7 +181,8 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
             currentState = State.NAME_LENGTH;
             receivedFileLength = 0L;
             System.out.println("STATE: Start file receiving");
-
+        } else if (readed == SIGNAL_UPDATE) {
+            currentState = State.UPDATE;
         } else {
             System.out.println("ERROR: Invalid first byte - " + readed);
         }
