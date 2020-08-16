@@ -29,6 +29,12 @@
             <version>1</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.Geekbrains</groupId>
+            <artifactId>common1</artifactId>
+            <version>1</version>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 

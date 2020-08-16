@@ -1,7 +1,8 @@
 package com.geekbrains.cloud_storage.client.controllers;
 
-import com.geekbrains.common.common.AppModel;
-import com.geekbrains.common.common.FileInfo;
+
+import com.geekbrains.common1.common.AppModel;
+import com.geekbrains.common1.common.FileInfo;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -9,7 +10,7 @@ import javafx.scene.control.*;
 import lombok.Getter;
 
 import static com.geekbrains.cloud_storage.client.ProtoHandlerClient.listFileServer;
-import static com.geekbrains.common.common.Config.PATH_SERVER;
+import static com.geekbrains.common1.common.Config.PATH_SERVER;
 
 @Getter
 public class ServerController extends FileController implements Initializable {
@@ -25,8 +26,9 @@ public class ServerController extends FileController implements Initializable {
 
     protected String pathPanel=PATH_SERVER;
 
+
     public ServerController(AppModel model) {
-        super();
+        super ();
         this.model = model;
         model.textLogin ().addListener ((obs, oldText, newText) -> {
             if (newText!="") {

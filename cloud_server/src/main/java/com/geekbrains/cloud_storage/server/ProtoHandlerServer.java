@@ -1,6 +1,6 @@
 package com.geekbrains.cloud_storage.server;
 
-import com.geekbrains.common.common.*;
+import com.geekbrains.common1.common.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
@@ -17,7 +17,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
-class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAction,Config {
+class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAction, Config {
 
     private int loginLength;
 
@@ -89,6 +89,8 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
 
     private void writeFileList(ChannelHandlerContext ctx, Path p) {
         try {
+            if (Files.notExists (p))
+                FileFunction.createDirectory (String.valueOf (p));
             List<FileInfo> userPath = Files.list (p).map (path -> {
             return new FileInfo (path);
         }).collect (Collectors.toList ());
@@ -190,7 +192,7 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
     }
 
     private void sending(ChannelHandlerContext ctx) throws IOException {
-        ProtoFileSender.sendFile (Paths.get (PATH_SERVER, login, fileName),  SENDER.SERVER, false,ctx.channel (),future -> {
+        ProtoFileSender.sendFile (Paths.get (PATH_SERVER, login, fileName),  SENDER.SERVER, false,ctx.channel (), future -> {
             if (!future.isSuccess ()) {
                 future.cause ().printStackTrace ();
                 ProtoServer.stop();

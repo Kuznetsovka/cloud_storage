@@ -1,9 +1,9 @@
 package com.geekbrains.cloud_storage.client.controllers;
 
-import com.geekbrains.common.common.AppModel;
 import com.geekbrains.cloud_storage.client.Network;
-import com.geekbrains.common.common.ProtoFileSender;
-import com.geekbrains.common.common.SENDER;
+import com.geekbrains.common1.common.AppModel;
+import com.geekbrains.common1.common.ProtoFileSender;
+import com.geekbrains.common1.common.SENDER;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import javafx.application.Platform;
@@ -18,7 +18,8 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
-import static com.geekbrains.common.common.Config.SIGNAL_UPDATE;
+
+import static com.geekbrains.common1.common.Config.SIGNAL_UPDATE;
 
 public class Controller implements Initializable {
 
