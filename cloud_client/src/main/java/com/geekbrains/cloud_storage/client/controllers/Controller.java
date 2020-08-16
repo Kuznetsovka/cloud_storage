@@ -20,7 +20,9 @@ import java.util.concurrent.CountDownLatch;
 public class Controller implements Initializable, Config {
 
     @FXML
-    public Button upload;
+    public Button btnUpload;
+    @FXML
+    public Button btnDownload;
 
     @FXML
     public Button btnConnect;
@@ -36,7 +38,7 @@ public class Controller implements Initializable, Config {
     private TextField tfPassword;
 
     @FXML
-    private Label secondField;
+    private Label infoField;
     private boolean isConnect = false;
 
     public Controller(AppModel model) {
@@ -48,13 +50,13 @@ public class Controller implements Initializable, Config {
     public void initialize(URL location, ResourceBundle resources) {
         model.textNameFile ().addListener ((obs, oldText, newText) -> {
             nameFile = newText;
-            secondField.setText ("Выбран файл: " + Paths.get (clientFilesPath, nameFile).toString ());
+            infoField.setText ("Выбран файл: " + Paths.get (clientFilesPath, nameFile).toString ());
         });
         model.textPathSelected ().addListener ((obs, oldText, newText) -> {
             clientFilesPath = newText;
             if (isConnect)
                 Network.getHandle ().setClientFilesPath(clientFilesPath);
-            secondField.setText ("Выбран файл: " + Paths.get (clientFilesPath, nameFile).toString ());
+            infoField.setText ("Выбран файл: " + Paths.get (clientFilesPath, nameFile).toString ());
         });
     }
 
@@ -78,8 +80,7 @@ public class Controller implements Initializable, Config {
                 e.printStackTrace ();
             }
             if (isConnect) {
-                isConnect = true;
-                secondField.setText ("Connect");
+                infoField.setText ("Соединение установлено");
                 btnConnect.setVisible (false);
             } else {
                 noConnect.show ();

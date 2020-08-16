@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<?import javafx.geometry.Insets?>
 <VBox alignment="center" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.geekbrains.cloud_storage.client.controllers.Controller">
     <MenuBar>
         <Menu text="Программа">
@@ -16,22 +16,26 @@
             <fx:include fx:id="serverPanel" source="server_panel.fxml" HBox.hgrow="ALWAYS" />
     </HBox>
     <HBox spacing="5.0">
-        <Button  text="Connect" fx:id="btnConnect" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#connect" />
-        <Button text="Authorise" fx:id="auth" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#autorize"/>
-        <Button  text="Upload" fx:id="upload" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#uploadCommandNIO" />
-        <Button text="Download" fx:id="download" focusTraversable="false" HBox.hgrow="ALWAYS" onAction="#downloadCommandNIO"/>
-        <Label fx:id ="secondField" text="" visible="true"></Label>
+        <Button fx:id="btnUpload" focusTraversable="false" onAction="#uploadCommandNIO" prefHeight="25.0" prefWidth="242.0" text="Upload" HBox.hgrow="ALWAYS" />
+        <Button fx:id="btnDownload" focusTraversable="false" onAction="#downloadCommandNIO" prefHeight="25.0" prefWidth="243.0" text="Download" HBox.hgrow="ALWAYS" />
         <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
         </padding>
     </HBox>
     <HBox spacing="5.0" visible="true">
-        <Label fx:id="lbLogin" text="Логин" visible="true"/>
-        <TextField fx:id="tfLogin" text="Kirill" visible="true" onMousePressed="#clear"/>
-        <Label fx:id="Password" text="Пароль" visible="true"/>
-        <TextField fx:id="tfPassword" text="123456" visible="true" onMousePressed="#clear"/>
+        <Button fx:id="btnConnect" focusTraversable="false" onAction="#connect" text="Connect" HBox.hgrow="ALWAYS" />
+        <Label fx:id="lbLogin" text="Логин" visible="true" />
+        <TextField fx:id="tfLogin" onMousePressed="#clear" text="Kirill" visible="true" />
+        <Label fx:id="Password" text="Пароль" visible="true" />
+        <TextField fx:id="tfPassword" onMousePressed="#clear" text="123456" visible="true" />
         <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+        </padding>
+    </HBox>
+    <HBox spacing="5.0" visible="true">
+        <Label fx:id="infoField" text="" visible="true" />
+        <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
         </padding>
     </HBox>
 </VBox>

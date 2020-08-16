@@ -41,8 +41,9 @@ public class FileController implements Initializable {
                 Path path = Paths.get (pathField.getText ()).resolve (filesTable.getSelectionModel ().getSelectedItem ().getFilename ());
                 if (isDirectory (path)) {
                     updateList (path);
-                    if (!path.toString ().contains ("server"))
+                    if (!path.toString ().contains ("server")) {
                         model.setText2 (String.valueOf (path));
+                    }
                 }
             }
             if (event.getClickCount () == 1 && filesTable.getSelectionModel ().getSelectedItem () != null)
