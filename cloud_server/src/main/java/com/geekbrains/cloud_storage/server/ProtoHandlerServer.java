@@ -83,8 +83,10 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
             buf.readBytes (bytes);
             login = new String (bytes, StandardCharsets.UTF_8);
             Path path = Paths.get (PATH_SERVER, login);
-            if (Files.notExists (path))
+            if (Files.notExists (path)) {
                 FileFunction.createDirectory (String.valueOf (path));
+                FileFunction.createDirectory (String.valueOf (path) + "/" + "Добро пожаловать.txt");
+            }
             writeFileList (ctx, Paths.get (PATH_SERVER, login));
             currentState = State.IDLE;
         }
@@ -92,9 +94,8 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
 
     private void writeFileList(ChannelHandlerContext ctx, Path p) {
         try {
-            List<FileInfo> userPath = Files.list (p).map (path -> {
-            return new FileInfo (path);
-        }).collect (Collectors.toList ());
+
+            List<FileInfo> userPath = Files.list (p).map (path -> new FileInfo (path)).collect (Collectors.toList ());
 
             ByteBuf buf = ByteBufAllocator.DEFAULT.directBuffer (1);
             buf.writeByte (SIGNAL_UPDATE);
@@ -107,15 +108,15 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
             ctx.flush ();
 
             ctx.pipeline().addFirst (new ObjectEncoder ());
-        for (FileInfo fileInfo : userPath) {
-            ctx.write(fileInfo);
-            System.out.println (fileInfo.getFilename ());
-        }
-        ctx.flush ();
-        currentState = State.IDLE;
-        userPath.clear ();
-        System.out.println ("Remove Encoder");
-        ctx.pipeline().removeFirst ();
+            for (FileInfo fileInfo : userPath) {
+                ctx.write(fileInfo);
+                System.out.println (fileInfo.getFilename ());
+            }
+            ctx.flush ();
+            currentState = State.IDLE;
+            userPath.clear ();
+            System.out.println ("Remove Encoder");
+            ctx.pipeline().removeFirst ();
 
         } catch (IOException e) {
             e.printStackTrace ();
