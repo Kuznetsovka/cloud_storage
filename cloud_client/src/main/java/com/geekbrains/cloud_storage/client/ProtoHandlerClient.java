@@ -100,6 +100,7 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
             } else {
                 currentState = State.COUNT_LIST;
             }
+            System.out.println (currentState);
         }
 
     @Override
