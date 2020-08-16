@@ -5,7 +5,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.geekbrains.cloud_storage.client.controllers.ServerController">
     <HBox>
-        <TextField fx:id="pathField" editable="false" HBox.hgrow="ALWAYS" />
+        <TextField text = "" fx:id="pathField" editable="false" HBox.hgrow="ALWAYS" visible="false"  />
     </HBox>
     <TableView fx:id="filesTable" VBox.vgrow="ALWAYS" visible="false" />
 </VBox>

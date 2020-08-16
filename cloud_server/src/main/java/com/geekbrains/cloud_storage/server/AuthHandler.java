@@ -35,6 +35,7 @@ public class  AuthHandler extends ChannelInboundHandlerAdapter {
         ByteBuf buf = ((ByteBuf) msg);
         if (authOk==true){
             ctx.fireChannelRead (buf);
+            return;
         }
         if (buf.readableBytes() >= 4) {
             nextLength = buf.readInt();
@@ -60,7 +61,7 @@ public class  AuthHandler extends ChannelInboundHandlerAdapter {
             }
             System.out.println("Подключился клиент id = " + id);
             authOk = true;
-            ctx.pipeline ().remove (this);
+            str = "";
         } else {
             closeChannel (ctx);
         }

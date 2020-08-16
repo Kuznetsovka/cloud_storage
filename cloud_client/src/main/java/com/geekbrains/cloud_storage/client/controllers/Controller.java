@@ -18,8 +18,6 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
-
-import static com.geekbrains.cloud_storage.client.ProtoHandlerClient.listFileServer;
 import static com.geekbrains.common.common.Config.SIGNAL_UPDATE;
 
 public class Controller implements Initializable {

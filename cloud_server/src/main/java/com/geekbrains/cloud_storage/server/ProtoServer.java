@@ -24,6 +24,11 @@ public class ProtoServer {
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
+                        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+                            System.out.println ("Клиент вышел");
+                        }
+
+                        @Override
                         public void initChannel(SocketChannel ch) {
                             ch.pipeline().addLast(new AuthHandler (), new ProtoHandlerServer ());
                         }
