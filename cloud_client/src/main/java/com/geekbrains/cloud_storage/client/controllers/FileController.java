@@ -2,6 +2,8 @@ package com.geekbrains.cloud_storage.client.controllers;
 
 import com.geekbrains.common_files.common.AppModel;
 import com.geekbrains.common_files.common.FileInfo;
+import com.geekbrains.common_files.common.OSType;
+import com.geekbrains.common_files.common.Systems;
 import javafx.beans.property.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -35,6 +37,8 @@ public class FileController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        if (Systems.OsCheck.getOperatingSystemType () == OSType.Windows)
+            pathPanel = "C:\\Users\\" + Systems.user + "\\Downloads";
         fillTable ();
         new Thread (()-> runLater(() -> filesTable.setOnMouseClicked (event -> {
             if (event.getClickCount () == 2 && filesTable.getSelectionModel ().getSelectedItem () != null) {

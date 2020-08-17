@@ -2,6 +2,7 @@ package com.geekbrains.cloud_storage.client.controllers;
 
 import com.geekbrains.cloud_storage.client.Network;
 import com.geekbrains.common_files.common.*;
+import com.sun.deploy.panel.RuleSetViewerDialog;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import javafx.application.Platform;
@@ -13,6 +14,7 @@ import javafx.scene.input.MouseEvent;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.channels.NetworkChannel;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
@@ -40,14 +42,17 @@ public class Controller implements Initializable, Config {
     @FXML
     private Label infoField;
     private boolean isConnect = false;
+    @FXML
+    private Button btnDisconnect;
 
     public Controller(AppModel model) {
         this.model = model;
     }
 
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        btnUpload.setMaxWidth(Double.MAX_VALUE);
+        btnDownload.setMaxWidth (Double.MAX_VALUE);
         model.textNameFile ().addListener ((obs, oldText, newText) -> {
             nameFile = newText;
             infoField.setText ("Выбран файл: " + Paths.get (clientFilesPath, nameFile).toString ());
@@ -82,6 +87,7 @@ public class Controller implements Initializable, Config {
             if (isConnect) {
                 infoField.setText ("Соединение установлено");
                 btnConnect.setVisible (false);
+                btnDisconnect.setVisible(true);
             } else {
                 noConnect.show ();
             }
@@ -129,12 +135,16 @@ public class Controller implements Initializable, Config {
         }
     }
 
-    public void autorize(ActionEvent actionEvent) {
-    }
-
     public void clear(MouseEvent mouseEvent) {
         TextField tf = (TextField) mouseEvent.getSource ();
         if (mouseEvent.getSource ().equals (tf))
             tf.setText ("");
+    }
+
+    public void disConnect(ActionEvent actionEvent) {
+        if (isConnect)
+            Network.getInstance().getCurrentChannel ().close ();
+        btnDisconnect.setVisible(false);
+        btnConnect.setVisible (true);
     }
 }

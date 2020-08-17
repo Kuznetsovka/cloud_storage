@@ -3,7 +3,6 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
 <VBox alignment="center" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.geekbrains.cloud_storage.client.controllers.Controller">
     <MenuBar>
         <Menu text="Программа">
@@ -12,28 +11,63 @@
     </MenuBar>
 
     <HBox VBox.vgrow="ALWAYS">
+        <VBox  HBox.hgrow="ALWAYS">
             <fx:include fx:id="clientPanel" source="client_panel.fxml" HBox.hgrow="ALWAYS" />
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+        </VBox>
+        <VBox  HBox.hgrow="ALWAYS">
             <fx:include fx:id="serverPanel" source="server_panel.fxml" HBox.hgrow="ALWAYS" />
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+        </VBox>
+        <padding>
+            <Insets bottom="5.0" />
+        </padding>
     </HBox>
-    <HBox spacing="5.0">
-        <Button fx:id="btnUpload" focusTraversable="false" onAction="#uploadCommandNIO" prefHeight="25.0" prefWidth="242.0" text="Upload" HBox.hgrow="ALWAYS" />
-        <Button fx:id="btnDownload" focusTraversable="false" onAction="#downloadCommandNIO" prefHeight="25.0" prefWidth="243.0" text="Download" HBox.hgrow="ALWAYS" />
+    <HBox HBox.hgrow="ALWAYS">
+        <VBox  HBox.hgrow="ALWAYS">
+        <Button fx:id="btnUpload" focusTraversable="false" onAction="#uploadCommandNIO" prefHeight="25.0" text="Upload" />
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+        </VBox>
+        <VBox HBox.hgrow="ALWAYS">
+        <Button fx:id="btnDownload" focusTraversable="false" onAction="#downloadCommandNIO" prefHeight="25.0" text="Download" />
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+        </VBox>
         <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
         </padding>
     </HBox>
-    <HBox spacing="5.0" visible="true">
-        <Button fx:id="btnConnect" focusTraversable="false" onAction="#connect" text="Connect" HBox.hgrow="ALWAYS" />
-        <Label fx:id="lbLogin" text="Логин" visible="true" />
-        <TextField fx:id="tfLogin" onMousePressed="#clear" text="Kirill" visible="true" />
-        <Label fx:id="Password" text="Пароль" visible="true" />
-        <TextField fx:id="tfPassword" onMousePressed="#clear" text="123456" visible="true" />
         <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
         </padding>
-    </HBox>
     <HBox spacing="5.0" visible="true">
-        <Label fx:id="infoField" text="" visible="true" />
+        <HBox spacing="5.0" visible="true" VBox.vgrow="ALWAYS">
+                <Button fx:id="btnConnect" focusTraversable="false" onAction="#connect" text="Connect" HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnDisconnect" focusTraversable="false" onAction="#disConnect" text="Disconnect" visible="false" HBox.hgrow="ALWAYS" />
+                <Label fx:id="lbLogin" text="Логин" visible="true" />
+                <TextField fx:id="tfLogin" onMousePressed="#clear" text="Kirill" visible="true" />
+                <Label fx:id="Password" text="Пароль" visible="true" />
+                <TextField fx:id="tfPassword" onMousePressed="#clear" text="123456" visible="true" />
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+        </HBox>
+        <HBox spacing="5.0" visible="true" VBox.vgrow="ALWAYS">
+            <Label fx:id="infoField" text="" visible="true" />
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+        </HBox>
+        <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+        </padding>
         <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
         </padding>
