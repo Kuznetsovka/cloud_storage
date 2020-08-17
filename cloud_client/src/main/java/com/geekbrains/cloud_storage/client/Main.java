@@ -1,11 +1,12 @@
 package com.geekbrains.cloud_storage.client;
 
-import com.geekbrains.cloud_storage.client.controllers.Controller;
 import com.geekbrains.cloud_storage.client.controllers.ClientController;
+import com.geekbrains.cloud_storage.client.controllers.Controller;
 import com.geekbrains.cloud_storage.client.controllers.ServerController;
 import com.geekbrains.common_files.common.AppModel;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -13,13 +14,17 @@ import javafx.util.Callback;
 
 
 public class Main extends Application {
+    Stage primaryStage;
+
+    private Controller controller;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
         AppModel model = new AppModel ();
         Callback<Class<?>, Object> controllerFactory = type -> {
             if (type == Controller.class) {
-                return new Controller(model);
+                controller = new Controller(model);
+                return controller;
             } else if (type == ClientController.class) {
                 return new ClientController(model);
             } else if (type == ServerController.class) {
@@ -32,11 +37,12 @@ public class Main extends Application {
                     throw new RuntimeException(exc);
                 }
             }
-        };
 
+        };
         FXMLLoader firstLoader = new FXMLLoader(getClass().getResource("/sample.fxml"));
         firstLoader.setControllerFactory (controllerFactory);
         Parent firstUI = firstLoader.load();
+        Scene scene =new Scene(firstUI);
 
         FXMLLoader secondLoader = new FXMLLoader(getClass().getResource("/client_panel.fxml"));
         secondLoader.setControllerFactory (controllerFactory);
@@ -46,10 +52,12 @@ public class Main extends Application {
         thirdLoader.setControllerFactory (controllerFactory);
         Parent thirdUI = thirdLoader.load();
         primaryStage.setTitle("Cloudy");
-        primaryStage.setScene(new Scene (firstUI));
+        scene.getStylesheets().add("MyStyle.css");
+        controller.setStage (primaryStage);
+        primaryStage.setScene(scene);
         primaryStage.show();
-    }
 
+    }
 
     public static void main(String[] args) {
         launch(args);

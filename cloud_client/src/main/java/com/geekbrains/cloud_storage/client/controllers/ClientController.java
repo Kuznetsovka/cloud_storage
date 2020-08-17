@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 @Getter
 public class ClientController extends FileController implements Initializable {
-
     public ClientController(AppModel model) {
         super();
         this.model = model;

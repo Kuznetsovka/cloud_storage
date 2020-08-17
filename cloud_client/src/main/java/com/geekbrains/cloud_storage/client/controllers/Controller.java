@@ -1,26 +1,37 @@
 package com.geekbrains.cloud_storage.client.controllers;
 
 import com.geekbrains.cloud_storage.client.Network;
-import com.geekbrains.common_files.common.*;
-import com.sun.deploy.panel.RuleSetViewerDialog;
+import com.geekbrains.common_files.common.AppModel;
+import com.geekbrains.common_files.common.Config;
+import com.geekbrains.common_files.common.ProtoFileSender;
+import com.geekbrains.common_files.common.SENDER;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.URL;
-import java.nio.channels.NetworkChannel;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 
+import static javafx.application.Platform.runLater;
+
 public class Controller implements Initializable, Config {
 
+    public void setStage(Stage stage) {
+        clientFilesPath = "C:\\Users\\" + System.getProperty ("user.name") + "\\Downloads";
+        this.stage = stage;
+    }
+    String clientFilesPath;
+    private static Stage stage;
     @FXML
     public Button btnUpload;
     @FXML
@@ -30,9 +41,7 @@ public class Controller implements Initializable, Config {
     public Button btnConnect;
     private AppModel model;
     protected static String nameFile="";
-    protected static String clientFilesPath = "";
     Alert noConnect = new Alert(Alert.AlertType.INFORMATION, "Нет соединения!", ButtonType.OK);
-
     @FXML
     private TextField tfLogin;
 
@@ -55,7 +64,7 @@ public class Controller implements Initializable, Config {
         btnDownload.setMaxWidth (Double.MAX_VALUE);
         model.textNameFile ().addListener ((obs, oldText, newText) -> {
             nameFile = newText;
-            infoField.setText ("Выбран файл: " + Paths.get (clientFilesPath, nameFile).toString ());
+            infoField.setText ("Выбран файл: " + Paths.get (nameFile).toString ());
         });
         model.textPathSelected ().addListener ((obs, oldText, newText) -> {
             clientFilesPath = newText;
@@ -76,7 +85,9 @@ public class Controller implements Initializable, Config {
     }
 
     public synchronized void connect (ActionEvent actionEvent) {
+
         if (!isConnect) {
+            waitCursor ();
             CountDownLatch networkStarter = new CountDownLatch (1);
             new Thread (() -> Network.getInstance ().start (this, networkStarter, tfLogin.getText (), tfPassword.getText (),model)).start ();
             try {
@@ -91,12 +102,14 @@ public class Controller implements Initializable, Config {
             } else {
                 noConnect.show ();
             }
+            notWaitCursor ();
         }
     }
 
     public void uploadCommandNIO(ActionEvent actionEvent) {
         if (isConnect) {
             try {
+                waitCursor ();
                 ProtoFileSender.sendFile (Paths.get (clientFilesPath, nameFile), SENDER.CLIENT, true, Network.getInstance ().getCurrentChannel (), future -> {
                     if (!future.isSuccess ()) {
                         future.cause ().printStackTrace ();
@@ -109,6 +122,7 @@ public class Controller implements Initializable, Config {
                         Network.getInstance ().getCurrentChannel ().writeAndFlush (buf);
                     }
                 });
+                notWaitCursor ();
             } catch (IOException e) {
                 e.printStackTrace ();
             }
@@ -119,6 +133,7 @@ public class Controller implements Initializable, Config {
 
     public void downloadCommandNIO(ActionEvent actionEvent) {
         if (isConnect) {
+            waitCursor();
             try {
                 Network.getHandle ().setFileName (nameFile);
                 ProtoFileSender.sendFile (Paths.get (nameFile), SENDER.CLIENT, false, Network.getInstance ().getCurrentChannel (), future -> {
@@ -130,6 +145,7 @@ public class Controller implements Initializable, Config {
             } catch (IOException e) {
                 e.printStackTrace ();
             }
+            notWaitCursor ();
         } else {
             noConnect.show();
         }
@@ -146,5 +162,21 @@ public class Controller implements Initializable, Config {
             Network.getInstance().getCurrentChannel ().close ();
         btnDisconnect.setVisible(false);
         btnConnect.setVisible (true);
+    }
+
+    void waitCursor(){
+//        new Thread (()-> runLater(() -> {
+//            stage.getScene ().setCursor (Cursor.WAIT);
+//            stage.show ();
+//                }
+//        ));
+    }
+
+    void notWaitCursor(){
+//        new Thread (()-> runLater(() ->{
+//            stage.getScene().setCursor(Cursor.DEFAULT);
+//            stage.show();
+//        }
+//        ));
     }
 }

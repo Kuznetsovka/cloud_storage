@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.*?>
+<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
+
 <VBox alignment="center" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.geekbrains.cloud_storage.client.controllers.Controller">
     <MenuBar>
         <Menu text="Программа">
@@ -11,13 +14,18 @@
     </MenuBar>
 
     <HBox VBox.vgrow="ALWAYS">
-        <VBox  HBox.hgrow="ALWAYS">
+        <VBox HBox.hgrow="ALWAYS">
             <fx:include fx:id="clientPanel" source="client_panel.fxml" HBox.hgrow="ALWAYS" />
             <padding>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
             </padding>
         </VBox>
-        <VBox  HBox.hgrow="ALWAYS">
+      <Separator orientation="VERTICAL" prefHeight="350.0" prefWidth="0.0">
+         <cursor>
+            <Cursor fx:constant="E_RESIZE" />
+         </cursor>
+      </Separator>
+        <VBox HBox.hgrow="ALWAYS">
             <fx:include fx:id="serverPanel" source="server_panel.fxml" HBox.hgrow="ALWAYS" />
             <padding>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -26,9 +34,15 @@
         <padding>
             <Insets bottom="5.0" />
         </padding>
+      <cursor>
+         <Cursor fx:constant="DEFAULT" />
+      </cursor>
+      <effect>
+         <Blend />
+      </effect>
     </HBox>
     <HBox HBox.hgrow="ALWAYS">
-        <VBox  HBox.hgrow="ALWAYS">
+        <VBox HBox.hgrow="ALWAYS">
         <Button fx:id="btnUpload" focusTraversable="false" onAction="#uploadCommandNIO" prefHeight="25.0" text="Upload" />
             <padding>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -44,9 +58,6 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
         </padding>
     </HBox>
-        <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-        </padding>
     <HBox spacing="5.0" visible="true">
         <HBox spacing="5.0" visible="true" VBox.vgrow="ALWAYS">
                 <Button fx:id="btnConnect" focusTraversable="false" onAction="#connect" text="Connect" HBox.hgrow="ALWAYS" />
@@ -72,4 +83,7 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
         </padding>
     </HBox>
+        <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+        </padding>
 </VBox>

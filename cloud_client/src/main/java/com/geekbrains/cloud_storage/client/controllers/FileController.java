@@ -16,6 +16,7 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 import static java.nio.file.Files.isDirectory;
+
 import static javafx.application.Platform.*;
 
 public class FileController implements Initializable {
