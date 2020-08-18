@@ -1,6 +1,5 @@
 package com.geekbrains.cloud_storage.client.controllers;
 
-import com.geekbrains.common_files.common.AppModel;
 import com.geekbrains.common_files.common.FileInfo;
 import com.geekbrains.common_files.common.OSType;
 import com.geekbrains.common_files.common.Systems;
@@ -23,7 +22,7 @@ public class FileController implements Initializable {
     @FXML
     TableView<FileInfo> filesTable;
 
-    String pathPanel = "";
+    String pathPanel;
 
     @FXML
     TextField pathField;
@@ -34,7 +33,6 @@ public class FileController implements Initializable {
 
     @FXML
     public TextField tf_client;
-    protected AppModel model ;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -46,19 +44,10 @@ public class FileController implements Initializable {
                 Path path = Paths.get (pathField.getText ()).resolve (filesTable.getSelectionModel ().getSelectedItem ().getFilename ());
                 if (isDirectory (path)) {
                     updateList (path);
-                    if (!path.toString ().contains ("server")) {
-                        model.setText2 (String.valueOf (path));
-                    }
                 }
             }
-            if (event.getClickCount () == 1 && filesTable.getSelectionModel ().getSelectedItem () != null)
-                if (filesTable.getSelectionModel ().getSelectedItem ().getType () == FileInfo.FileType.FILE) {
-                    model.setText1 (String.valueOf (filesTable.getSelectionModel ().getSelectedItem ().getFilename ()));
-                }
         }))).start();
         updateList();
-        if (!pathField.getText ().contains ("server"))
-            model.setText2 (pathField.getText ());
     }
 
     private void fillTable() {
@@ -103,7 +92,6 @@ public class FileController implements Initializable {
             filesTable.getItems().clear();
             filesTable.getItems().addAll(Files.list(path).map(FileInfo::new).collect(Collectors.toList()));
             filesTable.sort();
-            model.setText3 ("");
         } catch (IOException e) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Не удалось обновить список файлов", ButtonType.OK);
             alert.showAndWait();

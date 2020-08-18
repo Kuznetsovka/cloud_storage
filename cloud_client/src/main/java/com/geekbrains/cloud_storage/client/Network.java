@@ -1,7 +1,6 @@
 package com.geekbrains.cloud_storage.client;
 
 import com.geekbrains.cloud_storage.client.controllers.Controller;
-import com.geekbrains.common_files.common.AppModel;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -35,11 +34,11 @@ public class Network {
         return currentChannel;
     }
 
-    public void start(Controller controller, CountDownLatch countDownLatch, String login, String password, AppModel model) {
+    public void start(Controller controller, CountDownLatch countDownLatch, String login, String password) {
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             Bootstrap clientBootstrap = new Bootstrap();
-            handle = new ProtoHandlerClient (model,login);
+            handle = new ProtoHandlerClient ();
             clientBootstrap.group(group)
                     .channel(NioSocketChannel.class)
                     .remoteAddress(new InetSocketAddress("localhost", 8189))

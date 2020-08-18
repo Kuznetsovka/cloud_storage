@@ -6,7 +6,8 @@
 <?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox alignment="center" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.geekbrains.cloud_storage.client.controllers.Controller">
+<VBox alignment="center" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.geekbrains.cloud_storage.client.controllers.Controller">
     <MenuBar>
         <Menu text="Программа">
             <MenuItem onAction="#exitAction" text="Выйти из программы" />
@@ -15,7 +16,7 @@
 
     <HBox VBox.vgrow="ALWAYS">
         <VBox HBox.hgrow="ALWAYS">
-            <fx:include fx:id="clientPanel" source="client_panel.fxml" HBox.hgrow="ALWAYS" />
+            <fx:include fx:id="clientBox" source="client_panel.fxml" HBox.hgrow="ALWAYS" />
             <padding>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
             </padding>
@@ -26,7 +27,7 @@
          </cursor>
       </Separator>
         <VBox HBox.hgrow="ALWAYS">
-            <fx:include fx:id="serverPanel" source="server_panel.fxml" HBox.hgrow="ALWAYS" />
+            <fx:include fx:id="serverBox" source="server_panel.fxml" HBox.hgrow="ALWAYS" />
             <padding>
                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
             </padding>
@@ -86,4 +87,7 @@
         <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
         </padding>
+    <properties>
+        <ctrl><fx:reference source="controller"/></ctrl>
+    </properties>
 </VBox>

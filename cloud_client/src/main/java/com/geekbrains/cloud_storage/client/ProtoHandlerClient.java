@@ -6,33 +6,32 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 
 import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.geekbrains.cloud_storage.client.controllers.Controller.clientFilesPath;
+
 public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements ProtoAction {
 
     private String nameFile;
-    private String login;
-    private String clientFilesPath;
-    public static List<FileInfo> listFileServer= new ArrayList<> ();
+    public static List<FileInfo> listFileServer = new ArrayList<> ();
     private int countFileList;
     private int listItem;
     private State currentState = State.IDLE;
     private long fileLength;
     private long receivedFileLength;
     private BufferedOutputStream out;
-    private AppModel model;
     private ByteBuf buf;
+    public static BooleanProperty isUpdateServer = new SimpleBooleanProperty ();
+    public static BooleanProperty isUpdateClient = new SimpleBooleanProperty ();
 
     public enum State {
         IDLE,COUNT_LIST,UPDATE,LONG, FILE
-    }
-    public ProtoHandlerClient(AppModel model, String login) {
-        this.model = model;
-        this.login = login;
     }
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -70,13 +69,13 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
                 listItem++;
                 buf.readInt();
                 listFileServer.add ((FileInfo) msg);
-                System.out.println (((FileInfo) msg).getFilename ());
+                System.out.println ("Файл [" + listItem + "] в списке update" + ((FileInfo) msg).getFilename ());
                 if (listItem == countFileList) {
                     listItem = 0;
                     currentState = State.IDLE;
-                    model.setText4 (login);
                     ctx.pipeline ().removeFirst ();
                 }
+                isUpdateServer.setValue (true);
             }
         }
 
@@ -91,6 +90,7 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
 
         @Override
         public void readCommand(ByteBuf buf) {
+            listFileServer.clear();
             byte readed = buf.readByte ();
             if (readed != 15) {
                 currentState = State.LONG;
@@ -108,12 +108,12 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
             currentState = State.FILE;
             receivedFileLength = 0L;
         }
-        String path = "C:\\Users\\" + Systems.user + "\\Downloads"; //TODO!!!
-
+        String path = clientFilesPath;
         FileFunction.createDirectory (path);
         try {out = new BufferedOutputStream (new FileOutputStream (String.valueOf (Paths.get(path,nameFile))));
         } catch (FileNotFoundException e) {
             e.printStackTrace ();
+            System.out.println ("Файл не найдет или запись в каталоге запрещена!");
         }
     }
 
@@ -125,7 +125,7 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
             if (fileLength == receivedFileLength) {
                 currentState = State.IDLE;
                 System.out.println("File received");
-                model.setText3 (clientFilesPath);
+                isUpdateClient.setValue (true);
                 out.close();
                 break;
             }
@@ -155,10 +155,6 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
 
     public void setFileName(String s){
         nameFile = s;
-    }
-
-    public void setClientFilesPath(String clientFilesPath) {
-        this.clientFilesPath = clientFilesPath;
     }
 
 }

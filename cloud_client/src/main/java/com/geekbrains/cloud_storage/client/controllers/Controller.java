@@ -1,10 +1,7 @@
 package com.geekbrains.cloud_storage.client.controllers;
 
 import com.geekbrains.cloud_storage.client.Network;
-import com.geekbrains.common_files.common.AppModel;
-import com.geekbrains.common_files.common.Config;
-import com.geekbrains.common_files.common.ProtoFileSender;
-import com.geekbrains.common_files.common.SENDER;
+import com.geekbrains.common_files.common.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import javafx.application.Platform;
@@ -14,24 +11,24 @@ import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
+import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 
-import static javafx.application.Platform.runLater;
+import static com.geekbrains.cloud_storage.client.ProtoHandlerClient.*;
 
 public class Controller implements Initializable, Config {
+    @FXML
+    public VBox clientBox;
+    @FXML
+    public VBox serverBox;
 
-    public void setStage(Stage stage) {
-        clientFilesPath = "C:\\Users\\" + System.getProperty ("user.name") + "\\Downloads";
-        this.stage = stage;
-    }
-    String clientFilesPath; //TODO Исправить нулевой путь
-    private static Stage stage;
+    public static  String clientFilesPath = new String();
     @FXML
     public Button btnUpload;
     @FXML
@@ -39,9 +36,9 @@ public class Controller implements Initializable, Config {
 
     @FXML
     public Button btnConnect;
-    private AppModel model;
-    protected static String nameFile="";
+    protected String nameFile;
     Alert noConnect = new Alert(Alert.AlertType.INFORMATION, "Нет соединения!", ButtonType.OK);
+    Alert noSelect = new Alert(Alert.AlertType.INFORMATION, "Ни один файл не выбран!", ButtonType.OK);
     @FXML
     private TextField tfLogin;
 
@@ -53,30 +50,36 @@ public class Controller implements Initializable, Config {
     private boolean isConnect = false;
     @FXML
     private Button btnDisconnect;
-
-    public Controller(AppModel model) {
-        this.model = model;
-    }
+    ClientController clientPanel;
+    ServerController serverPanel;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         btnUpload.setMaxWidth(Double.MAX_VALUE);
         btnDownload.setMaxWidth (Double.MAX_VALUE);
-        model.textNameFile ().addListener ((obs, oldText, newText) -> {
-            nameFile = newText;
-            infoField.setText ("Выбран файл: " + Paths.get (nameFile).toString ());
+        clientPanel = (ClientController) clientBox.getProperties().get("ctrl");
+        serverPanel = (ServerController) serverBox.getProperties().get("ctrl");
+        clientFilesPath = clientPanel.pathField.getText ();
+        isUpdateServer.addListener ((observable, oldValue, newValue) -> {
+            if (isUpdateServer.get ()) {
+                serverPanel.updateListServer (listFileServer);
+                isUpdateServer.setValue (false);
+            }
         });
-        model.textPathSelected ().addListener ((obs, oldText, newText) -> {
-            clientFilesPath = newText;
-            if (isConnect)
-                Network.getHandle ().setClientFilesPath(clientFilesPath);
-            infoField.setText ("Выбран файл: " + Paths.get (clientFilesPath, nameFile).toString ());
+        isUpdateClient.addListener ((observable, oldValue, newValue) -> {
+            if (isUpdateClient.get ()) {
+                clientPanel.updateList (Paths.get (clientFilesPath));
+                isUpdateClient.setValue (false);
+            }
         });
+
+
     }
 
 
     public void exitAction (ActionEvent actionEvent){
-        Network.getInstance().getCurrentChannel ().close ();
+        if (isConnect)
+            Network.getInstance().getCurrentChannel ().close ();
         Platform.exit ();
     }
 
@@ -88,7 +91,7 @@ public class Controller implements Initializable, Config {
         if (!isConnect) {
             waitCursor ();
             CountDownLatch networkStarter = new CountDownLatch (1);
-            new Thread (() -> Network.getInstance ().start (this, networkStarter, tfLogin.getText (), tfPassword.getText (),model)).start ();
+            new Thread (() -> Network.getInstance ().start (this, networkStarter, tfLogin.getText (),tfPassword.getText ())).start ();
             try {
                 networkStarter.await ();
             } catch (InterruptedException e) {
@@ -108,17 +111,23 @@ public class Controller implements Initializable, Config {
     public void uploadCommandNIO(ActionEvent actionEvent) {
         if (isConnect) {
             try {
+                if(!isSelectedFile(SENDER.CLIENT)) {
+                    noSelect.show ();
+                    return;
+                }
                 waitCursor ();
+                clientFilesPath = clientPanel.pathField.getText ();
+                nameFile = String.valueOf (clientPanel.filesTable.getSelectionModel ().getSelectedItem ().getFilename ());
                 ProtoFileSender.sendFile (Paths.get (clientFilesPath, nameFile), SENDER.CLIENT, true, Network.getInstance ().getCurrentChannel (), future -> {
                     if (!future.isSuccess ()) {
                         future.cause ().printStackTrace ();
                         Network.getInstance ().stop ();
                     }
                     if (future.isSuccess ()) {
-                        System.out.println ("Файл успешно передан");
                         ByteBuf buf = ByteBufAllocator.DEFAULT.directBuffer (1);
                         buf.writeByte (SIGNAL_UPDATE);
                         Network.getInstance ().getCurrentChannel ().writeAndFlush (buf);
+                        System.out.println ("Файл успешно передан");
                     }
                 });
                 notWaitCursor ();
@@ -132,7 +141,13 @@ public class Controller implements Initializable, Config {
 
     public void downloadCommandNIO(ActionEvent actionEvent) {
         if (isConnect) {
-            waitCursor();
+            if(!isSelectedFile(SENDER.SERVER)) {
+                noSelect.show ();
+                return;
+            }
+            waitCursor ();
+            clientFilesPath = clientPanel.pathField.getText ();
+            nameFile = String.valueOf (serverPanel.filesTable.getSelectionModel ().getSelectedItem ().getFilename ());
             try {
                 Network.getHandle ().setFileName (nameFile);
                 ProtoFileSender.sendFile (Paths.get (nameFile), SENDER.CLIENT, false, Network.getInstance ().getCurrentChannel (), future -> {
@@ -150,6 +165,21 @@ public class Controller implements Initializable, Config {
         }
     }
 
+    private boolean isSelectedFile(SENDER sender) {
+        TableView<FileInfo> table;
+        if (sender == SENDER.CLIENT)
+            table = clientPanel.filesTable;
+        else
+            table = serverPanel.filesTable;
+        try {
+            if (table.getSelectionModel ().getSelectedItem () != null && table.getSelectionModel ().getSelectedItem ().getType () == FileInfo.FileType.FILE)
+                return true;
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
+    }
+
     public void clear(MouseEvent mouseEvent) {
         TextField tf = (TextField) mouseEvent.getSource ();
         if (mouseEvent.getSource ().equals (tf))
@@ -164,16 +194,10 @@ public class Controller implements Initializable, Config {
     }
 
     void waitCursor(){
-        new Thread (()-> runLater(() ->{
-                    stage.getScene ().setCursor (Cursor.WAIT);
-                }
-        ));
+        new Thread (() -> (clientPanel.filesTable.getScene().getWindow ()).getScene ().setCursor (Cursor.WAIT)).start ();
     }
 
     void notWaitCursor(){
-        new Thread (()-> runLater(() ->{
-                    stage.getScene().setCursor(Cursor.DEFAULT);
-                }
-        ));
+        new Thread (() -> (clientPanel.filesTable.getScene().getWindow ()).getScene ().setCursor (Cursor.DEFAULT)).start ();
     }
 }

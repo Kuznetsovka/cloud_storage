@@ -39,7 +39,6 @@ public class ProtoServer {
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
-            stop();
         }
     }
 

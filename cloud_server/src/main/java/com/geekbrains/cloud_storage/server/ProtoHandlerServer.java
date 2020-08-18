@@ -83,9 +83,12 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
             buf.readBytes (bytes);
             login = new String (bytes, StandardCharsets.UTF_8);
             Path path = Paths.get (PATH_SERVER, login);
-            if (Files.notExists (path)) {
-                FileFunction.createDirectory (String.valueOf (path));
-                FileFunction.createDirectory (String.valueOf (path) + "/" + "Добро пожаловать.txt");
+            FileFunction.createDirectories (String.valueOf (path));
+            try {
+            if (FileFunction.isDirEmpty(path))
+                Files.createFile (Paths.get (path + "/" + "Добро пожаловать.txt"));
+            } catch (IOException e) {
+                    e.printStackTrace ();
             }
             writeFileList (ctx, Paths.get (PATH_SERVER, login));
             currentState = State.IDLE;
@@ -162,6 +165,7 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
                 return true;
             }
             String path = String.valueOf (Paths.get(PATH_SERVER,login));
+            System.out.println("STATE: Filename uploading - " + fileName);
             FileFunction.createDirectory (path);
             out = new BufferedOutputStream (new FileOutputStream (path + "/" + fileName));
             currentState = State.FILE_LENGTH;
@@ -185,9 +189,10 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
             command = (readed == SIGNAL_UPLOAD)?SIGNAL_UPLOAD:SIGNAL_DOWNLOAD;
             currentState = State.NAME_LENGTH;
             receivedFileLength = 0L;
-            System.out.println("STATE: Start file receiving");
+            System.out.println("STATE: " + ((command == SIGNAL_UPLOAD)?"DOWNLOAD":"UPLOAD"));
         } else if (readed == SIGNAL_UPDATE) {
             currentState = State.UPDATE;
+            System.out.println("STATE: UPDATE");
         } else {
             System.out.println("ERROR: Invalid first byte - " + readed);
         }
