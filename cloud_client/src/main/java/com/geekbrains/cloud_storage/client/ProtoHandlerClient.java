@@ -1,9 +1,6 @@
 package com.geekbrains.cloud_storage.client;
 
-import com.geekbrains.common_files.common.AppModel;
-import com.geekbrains.common_files.common.FileFunction;
-import com.geekbrains.common_files.common.FileInfo;
-import com.geekbrains.common_files.common.ProtoAction;
+import com.geekbrains.common_files.common.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.*;
@@ -111,7 +108,8 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
             currentState = State.FILE;
             receivedFileLength = 0L;
         }
-        String path = clientFilesPath;
+        String path = "C:\\Users\\" + Systems.user + "\\Downloads"; //TODO!!!
+
         FileFunction.createDirectory (path);
         try {out = new BufferedOutputStream (new FileOutputStream (String.valueOf (Paths.get(path,nameFile))));
         } catch (FileNotFoundException e) {

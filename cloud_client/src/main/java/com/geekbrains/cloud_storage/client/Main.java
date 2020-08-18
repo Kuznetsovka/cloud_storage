@@ -12,6 +12,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
+import static javafx.application.Platform.runLater;
+
 
 public class Main extends Application {
     Stage primaryStage;
@@ -58,6 +60,7 @@ public class Main extends Application {
         primaryStage.show();
 
     }
+
 
     public static void main(String[] args) {
         launch(args);

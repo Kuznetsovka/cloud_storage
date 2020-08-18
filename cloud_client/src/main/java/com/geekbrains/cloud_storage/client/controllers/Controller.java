@@ -30,7 +30,7 @@ public class Controller implements Initializable, Config {
         clientFilesPath = "C:\\Users\\" + System.getProperty ("user.name") + "\\Downloads";
         this.stage = stage;
     }
-    String clientFilesPath;
+    String clientFilesPath; //TODO Исправить нулевой путь
     private static Stage stage;
     @FXML
     public Button btnUpload;
@@ -85,7 +85,6 @@ public class Controller implements Initializable, Config {
     }
 
     public synchronized void connect (ActionEvent actionEvent) {
-
         if (!isConnect) {
             waitCursor ();
             CountDownLatch networkStarter = new CountDownLatch (1);
@@ -165,18 +164,16 @@ public class Controller implements Initializable, Config {
     }
 
     void waitCursor(){
-//        new Thread (()-> runLater(() -> {
-//            stage.getScene ().setCursor (Cursor.WAIT);
-//            stage.show ();
-//                }
-//        ));
+        new Thread (()-> runLater(() ->{
+                    stage.getScene ().setCursor (Cursor.WAIT);
+                }
+        ));
     }
 
     void notWaitCursor(){
-//        new Thread (()-> runLater(() ->{
-//            stage.getScene().setCursor(Cursor.DEFAULT);
-//            stage.show();
-//        }
-//        ));
+        new Thread (()-> runLater(() ->{
+                    stage.getScene().setCursor(Cursor.DEFAULT);
+                }
+        ));
     }
 }
