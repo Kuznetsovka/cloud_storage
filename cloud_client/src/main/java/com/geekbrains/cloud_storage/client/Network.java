@@ -1,6 +1,7 @@
 package com.geekbrains.cloud_storage.client;
 
 import com.geekbrains.cloud_storage.client.controllers.Controller;
+import com.geekbrains.common_files.common.MyLogger;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -55,6 +56,7 @@ public class Network {
             countDownLatch.countDown();
             channelFuture.channel().closeFuture().sync();
         } catch (Exception e) {
+            MyLogger.logInfo ("Нет соединения!");
             System.out.println ("Нет соединения!");
             countDownLatch.countDown ();
             boolean isConnect = false;

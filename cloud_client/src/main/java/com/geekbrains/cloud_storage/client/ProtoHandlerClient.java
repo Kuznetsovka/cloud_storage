@@ -69,7 +69,8 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
                 listItem++;
                 buf.readInt();
                 listFileServer.add ((FileInfo) msg);
-                System.out.println ("Файл [" + listItem + "] в списке update" + ((FileInfo) msg).getFilename ());
+                MyLogger.logInfo ("Файл [" + listItem + "] в списке update " + ((FileInfo) msg).getFilename ());
+                System.out.println ("Файл [" + listItem + "] в списке update " + ((FileInfo) msg).getFilename ());
                 if (listItem == countFileList) {
                     listItem = 0;
                     currentState = State.IDLE;
@@ -82,6 +83,7 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
         private void readInt(ChannelHandlerContext ctx,ByteBuf buf) throws IOException {
             if (buf.readableBytes () >= 4) {
                 countFileList = buf.readInt ();
+                MyLogger.logInfo ("STATE: Count list files " + countFileList);
                 System.out.println ("STATE: Count list files " + countFileList);
                 currentState = State.UPDATE;
                 ctx.pipeline ().addFirst (new ObjectDecoder (1024 * 1024 * 100, ClassResolvers.cacheDisabled (null)));
@@ -104,6 +106,7 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
     public void readLongFile(ByteBuf buf)  {
         if (buf.readableBytes() >= 8) {
             fileLength = buf.readLong();
+            MyLogger.logInfo ("STATE: File length received - " + fileLength);
             System.out.println("STATE: File length received - " + fileLength);
             currentState = State.FILE;
             receivedFileLength = 0L;
@@ -113,6 +116,7 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
         try {out = new BufferedOutputStream (new FileOutputStream (String.valueOf (Paths.get(path,nameFile))));
         } catch (FileNotFoundException e) {
             e.printStackTrace ();
+            MyLogger.logError ("Файл не найдет или запись в каталоге запрещена!");
             System.out.println ("Файл не найдет или запись в каталоге запрещена!");
         }
     }
@@ -120,15 +124,16 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
     @Override
     public void writeFile(ByteBuf buf) throws IOException {
         while (buf.readableBytes() > 0) {
-            out.write(buf.readByte());
-            receivedFileLength++;
-            if (fileLength == receivedFileLength) {
-                currentState = State.IDLE;
-                System.out.println("File received");
-                isUpdateClient.setValue (true);
-                out.close();
-                break;
-            }
+                out.write (buf.readByte ());
+                receivedFileLength++;
+                if (fileLength == receivedFileLength) {
+                    currentState = State.IDLE;
+                    MyLogger.logInfo ("Файл получен.");
+                    System.out.println ("Файл получен.");
+                    isUpdateClient.setValue (true);
+                    out.close ();
+                    break;
+                }
         }
     }
 

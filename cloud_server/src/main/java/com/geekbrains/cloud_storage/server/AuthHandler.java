@@ -1,5 +1,6 @@
 package com.geekbrains.cloud_storage.server;
 
+import com.geekbrains.common_files.common.MyLogger;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
@@ -27,6 +28,7 @@ public class  AuthHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         SqlClient.disconnect ();
+        MyLogger.logInfo ("Клиент [" + id + "] вышел!");
         System.out.println ("Клиент [" + id + "] вышел!");
         clients.remove ((SocketChannel) ctx.channel());
 
@@ -61,6 +63,7 @@ public class  AuthHandler extends ChannelInboundHandlerAdapter {
             if (id==0){
                 closeChannel (ctx);
             }
+            MyLogger.logInfo ("Подключился клиент id = " + id);
             System.out.println("Подключился клиент id = " + id);
             authOk = true;
             str = "";
@@ -71,6 +74,7 @@ public class  AuthHandler extends ChannelInboundHandlerAdapter {
 
     private void closeChannel(ChannelHandlerContext ctx) {
         ctx.channel ().close ();
+        MyLogger.logError ("Не корректная авторизация!");
         System.out.println ("Не корректная авторизация!");
     }
 }

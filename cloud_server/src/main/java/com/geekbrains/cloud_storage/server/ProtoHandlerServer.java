@@ -72,6 +72,7 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
     private void readLoginLength(ByteBuf buf) {
         if (buf.readableBytes() >= 4) {
             loginLength = buf.readInt();
+            MyLogger.logInfo ("STATE: Get login length " + loginLength);
             System.out.println("STATE: Get login length " + loginLength);
             currentState = State.LOGIN;
         }
@@ -118,7 +119,6 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
             ctx.flush ();
             currentState = State.IDLE;
             userPath.clear ();
-            System.out.println ("Remove Encoder");
             ctx.pipeline().removeFirst ();
 
         } catch (IOException e) {
@@ -134,7 +134,8 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
             receivedFileLength++;
             if (fileLength == receivedFileLength) {
                 currentState = State.UPDATE;
-                System.out.println("File received");
+                System.out.println("Файл "+ fileName +" получен");
+                MyLogger.logInfo ("Файл "+ fileName +" получен");
                 out.close();
                 break;
             }
@@ -146,7 +147,8 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
         if (command==SIGNAL_UPLOAD){
             if (buf.readableBytes() >= 8) {
                 fileLength = buf.readLong();
-                System.out.println("STATE: File length received - " + fileLength);
+                System.out.println("Статус: Размер файла - " + fileLength);
+                MyLogger.logInfo ("Статус: Размер файла - " + fileLength);
                 currentState = State.FILE;
             }
         }
@@ -159,13 +161,15 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
             buf.readBytes(fileNameByte);
             fileName = new String(fileNameByte, StandardCharsets.UTF_8);
             if (command == SIGNAL_DOWNLOAD) {
-                System.out.println("STATE: Filename downloading - " + fileName);
+                System.out.println("Статус: Файл загружен - " + fileName);
+                MyLogger.logInfo ("Статус: Файл загружен - " + fileName);
                 sending (ctx);
                 currentState = State.IDLE;
                 return true;
             }
             String path = String.valueOf (Paths.get(PATH_SERVER,login));
-            System.out.println("STATE: Filename uploading - " + fileName);
+            System.out.println("Статус: Файл скачен - " + fileName);
+            MyLogger.logInfo ("Статус: Файл скачен - " + fileName);
             FileFunction.createDirectory (path);
             out = new BufferedOutputStream (new FileOutputStream (path + "/" + fileName));
             currentState = State.FILE_LENGTH;
@@ -177,7 +181,8 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
     public void readLengthNameFile(ByteBuf buf) {
         if (buf.readableBytes() >= 4) {
             nextLength = buf.readInt();
-            System.out.println("STATE: Get filename length " + nextLength);
+            System.out.println("Статус: Длина имени файла " + nextLength);
+            MyLogger.logInfo ("Статус: Длина имени файла " + fileName);
             currentState = State.NAME;
         }
     }
@@ -189,12 +194,13 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
             command = (readed == SIGNAL_UPLOAD)?SIGNAL_UPLOAD:SIGNAL_DOWNLOAD;
             currentState = State.NAME_LENGTH;
             receivedFileLength = 0L;
-            System.out.println("STATE: " + ((command == SIGNAL_UPLOAD)?"DOWNLOAD":"UPLOAD"));
+            System.out.println("Статус: " + ((command == SIGNAL_UPLOAD)?"UPLOAD":"DOWNLOAD"));
         } else if (readed == SIGNAL_UPDATE) {
             currentState = State.UPDATE;
             System.out.println("STATE: UPDATE");
         } else {
-            System.out.println("ERROR: Invalid first byte - " + readed);
+            MyLogger.logError ("Ошибка: Не верный сигнальный байт - " + readed);
+            System.out.println("Ошибка: Не верный сигнальный байт - " + readed);
         }
     }
 
@@ -205,7 +211,8 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
                 ProtoServer.stop();
             }
             if (future.isSuccess ()) {
-                System.out.println ("Файл успешно передан");
+                MyLogger.logInfo ("Файл "+ fileName + " успешно передан");
+                System.out.println ("Файл "+ fileName + " успешно передан");
             }
         });
     }

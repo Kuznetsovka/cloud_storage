@@ -1,5 +1,6 @@
 package com.geekbrains.cloud_storage.server;
 
+import com.geekbrains.common_files.common.MyLogger;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
@@ -29,7 +30,8 @@ public class ProtoServer {
                             ch.pipeline().addLast(new AuthHandler (), new ProtoHandlerServer ());
                         }
                     })
-                    .childOption(ChannelOption.SO_KEEPALIVE, true);;
+                    .childOption(ChannelOption.SO_KEEPALIVE, true);
+            MyLogger.logInfo ("Сервер запущен");
             System.out.println("Сервер запущен");
             f = b.bind(8189).sync();
             f.channel().closeFuture().sync();

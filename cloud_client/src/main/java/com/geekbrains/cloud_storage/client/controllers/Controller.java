@@ -39,6 +39,7 @@ public class Controller implements Initializable, Config {
     @FXML
     public Button btnConnect;
     protected String nameFile;
+    @FXML
     Alert noConnect = new Alert(Alert.AlertType.INFORMATION, "Нет соединения!", ButtonType.OK);
     Alert disConnect = new Alert(Alert.AlertType.INFORMATION, "Соединение разорвано!", ButtonType.OK);
     Alert noSelect = new Alert(Alert.AlertType.INFORMATION, "Ни один файл не выбран!", ButtonType.OK);
@@ -102,6 +103,7 @@ public class Controller implements Initializable, Config {
             }
             if (isConnect) {
                 infoField.setText ("Соединение установлено");
+                MyLogger.logInfo ("Соединение с сервером установлено ");
                 btnConnect.setVisible (false);
                 btnDisconnect.setVisible(true);
             } else {
@@ -131,6 +133,7 @@ public class Controller implements Initializable, Config {
                         buf.writeByte (SIGNAL_UPDATE);
                         Network.getInstance ().getCurrentChannel ().writeAndFlush (buf);
                         System.out.println ("Файл успешно передан");
+                        MyLogger.logInfo ("Файл успешно передан клиенту: " + tfLogin);
                     }
                 });
                 notWaitCursor ();
