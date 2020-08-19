@@ -70,12 +70,14 @@ public class Controller implements Initializable, Config {
             if (isUpdateServer.get ()) {
                 serverPanel.updateListServer (listFileServer);
                 isUpdateServer.setValue (false);
+                busy = false;
             }
         });
         isUpdateClient.addListener ((observable, oldValue, newValue) -> {
             if (isUpdateClient.get ()) {
                 clientPanel.updateList (Paths.get (clientFilesPath));
                 isUpdateClient.setValue (false);
+                busy = false;
             }
         });
     }
@@ -114,7 +116,7 @@ public class Controller implements Initializable, Config {
     }
 
     public void upload(ActionEvent actionEvent) {
-        if (isConnect && busy == false) {
+        if (isConnect && !busy) {
             busy = true;
             try {
                 if(!isSelectedFile(SENDER.CLIENT)) {
@@ -127,7 +129,7 @@ public class Controller implements Initializable, Config {
                 ProtoFileSender.sendFile (Paths.get (clientFilesPath, nameFile), SENDER.CLIENT, true, Network.getInstance ().getCurrentChannel (), future -> {
                     if (!future.isSuccess ()) {
                         future.cause ().printStackTrace ();
-                        Network.getInstance ().stop ();
+                        Network.stop ();
                     }
                     if (future.isSuccess ()) {
                         ByteBuf buf = ByteBufAllocator.DEFAULT.directBuffer (1);
@@ -138,8 +140,6 @@ public class Controller implements Initializable, Config {
                     }
                 });
                 notWaitCursor ();
-                busy = false;
-                System.out.println (busy);
             } catch (IOException e) {
                 e.printStackTrace ();
             }
@@ -149,7 +149,7 @@ public class Controller implements Initializable, Config {
     }
 
     public void download(ActionEvent actionEvent) {
-        if (isConnect && busy == false) {
+        if (isConnect && !busy) {
             busy = true;
             if(!isSelectedFile(SENDER.SERVER)) {
                 noSelect.show ();
@@ -163,14 +163,13 @@ public class Controller implements Initializable, Config {
                 ProtoFileSender.sendFile (Paths.get (nameFile), SENDER.CLIENT, false, Network.getInstance ().getCurrentChannel (), future -> {
                     if (!future.isSuccess ()) {
                         future.cause ().printStackTrace ();
-                        Network.getInstance ().stop ();
+                        Network.stop ();
                     }
                 });
             } catch (IOException e) {
                 e.printStackTrace ();
             }
             notWaitCursor ();
-            busy = false;
         } else {
             noConnect.show();
         }
@@ -183,12 +182,10 @@ public class Controller implements Initializable, Config {
         else
             table = serverPanel.filesTable;
         try {
-            if (table.getSelectionModel ().getSelectedItem () != null && table.getSelectionModel ().getSelectedItem ().getType () == FileInfo.FileType.FILE)
-                return true;
+            return (table.getSelectionModel ().getSelectedItem () != null && table.getSelectionModel ().getSelectedItem ().getType () == FileInfo.FileType.FILE);
         } catch (Exception e) {
             return false;
         }
-        return false;
     }
 
     public void clear(MouseEvent mouseEvent) {

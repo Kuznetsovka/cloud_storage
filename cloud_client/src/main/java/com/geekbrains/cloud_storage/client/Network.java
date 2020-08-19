@@ -14,6 +14,9 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 
+import static com.geekbrains.cloud_storage.client.ProtoHandlerClient.isUpdateServer;
+import static com.geekbrains.cloud_storage.client.ProtoHandlerClient.listFileServer;
+
 public class Network {
     private static ProtoHandlerClient handle;
     private static Network ourInstance = new Network();
@@ -61,7 +64,6 @@ public class Network {
             countDownLatch.countDown ();
             boolean isConnect = false;
             controller.setConnect (isConnect);
-            return;
         } finally {
             try {
                 stop();
@@ -88,6 +90,9 @@ public class Network {
     }
 
     public static void stop() {
+        System.out.println ("Соединение разорвано");
+        listFileServer.clear();
+        isUpdateServer.setValue (true);
         currentChannel.close();
     }
 }
