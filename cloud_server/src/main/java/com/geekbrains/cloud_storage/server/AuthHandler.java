@@ -20,7 +20,7 @@ public class  AuthHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        SqlClient.connect();
+        SqlClient.connect(SqlClient.Type.SQLite);
         clients.add((SocketChannel) ctx.channel());
     }
 
