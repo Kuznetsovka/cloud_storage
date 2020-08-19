@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.control.*;
+import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
@@ -56,6 +57,7 @@ public class Controller implements Initializable, Config {
     private Button btnDisconnect;
     ClientController clientPanel;
     ServerController serverPanel;
+    public static boolean busy = false;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -76,8 +78,6 @@ public class Controller implements Initializable, Config {
                 isUpdateClient.setValue (false);
             }
         });
-
-
     }
 
 
@@ -113,8 +113,9 @@ public class Controller implements Initializable, Config {
         }
     }
 
-    public void uploadCommandNIO(ActionEvent actionEvent) {
-        if (isConnect) {
+    public void upload(ActionEvent actionEvent) {
+        if (isConnect && busy == false) {
+            busy = true;
             try {
                 if(!isSelectedFile(SENDER.CLIENT)) {
                     noSelect.show ();
@@ -137,6 +138,8 @@ public class Controller implements Initializable, Config {
                     }
                 });
                 notWaitCursor ();
+                busy = false;
+                System.out.println (busy);
             } catch (IOException e) {
                 e.printStackTrace ();
             }
@@ -145,8 +148,9 @@ public class Controller implements Initializable, Config {
         }
     }
 
-    public void downloadCommandNIO(ActionEvent actionEvent) {
-        if (isConnect) {
+    public void download(ActionEvent actionEvent) {
+        if (isConnect && busy == false) {
+            busy = true;
             if(!isSelectedFile(SENDER.SERVER)) {
                 noSelect.show ();
                 return;
@@ -166,6 +170,7 @@ public class Controller implements Initializable, Config {
                 e.printStackTrace ();
             }
             notWaitCursor ();
+            busy = false;
         } else {
             noConnect.show();
         }
@@ -212,6 +217,19 @@ public class Controller implements Initializable, Config {
         new Thread (() -> (clientPanel.filesTable.getScene().getWindow ()).getScene ().setCursor (Cursor.DEFAULT)).start ();
     }
 
+
+    public void onDragDrop(DragEvent dragEvent) {
+        if(dragEvent.isDropCompleted ()){
+            Object dstPanel = dragEvent.getGestureTarget ();
+        }
+        String nameFile = (String) dragEvent.getAcceptingObject ();
+        Object srcPanel = dragEvent.getGestureSource ();
+    }
+
     public void onSeparatorMoved(MouseEvent mouseEvent) {
+    }
+
+    public void onEnter(MouseEvent mouseEvent) {
+
     }
 }

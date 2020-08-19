@@ -7,7 +7,11 @@ import javafx.beans.property.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.*;
 import java.time.format.DateTimeFormatter;
@@ -37,6 +41,7 @@ public class FileController implements Initializable {
         if (Systems.OsCheck.getOperatingSystemType () == OSType.Windows)
             pathPanel = "C:\\Users\\" + Systems.user + "\\Downloads";
         fillTable ();
+
         new Thread (()-> runLater(() -> filesTable.setOnMouseClicked (event -> {
             if (event.getClickCount () == 2 && filesTable.getSelectionModel ().getSelectedItem () != null) {
                 Path path = Paths.get (pathField.getText ()).resolve (filesTable.getSelectionModel ().getSelectedItem ().getFilename ());
@@ -49,9 +54,13 @@ public class FileController implements Initializable {
     }
 
     private void fillTable() {
+        TableColumn<FileInfo, String> fileTypeColumn = new TableColumn<>();
+        fileTypeColumn.setCellValueFactory(param -> new SimpleObjectProperty<> (param.getValue().getType() == FileInfo.FileType.DIRECTORY ? "D" : "F"));
+        fileTypeColumn.setPrefWidth(32);
+
         TableColumn<FileInfo, String> filenameColumn = new TableColumn<>("Название");
         filenameColumn.setCellValueFactory(param -> new SimpleStringProperty (param.getValue().getFilename()));
-        filenameColumn.setPrefWidth(300.0f);
+        filenameColumn.setPrefWidth(280.0f);
 
         TableColumn<FileInfo, Long> fileSizeColumn = new TableColumn<>("Размер");
         fileSizeColumn.setCellValueFactory(param -> new SimpleObjectProperty<> (param.getValue().getSize()));
@@ -76,7 +85,7 @@ public class FileController implements Initializable {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         fileDateColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getLastModified().format(dtf)));
         fileDateColumn.setPrefWidth(120);
-        filesTable.getColumns().addAll(filenameColumn, fileSizeColumn, fileDateColumn);
+        filesTable.getColumns().addAll(fileTypeColumn,filenameColumn, fileSizeColumn, fileDateColumn);
     }
 
     public void updateList() {

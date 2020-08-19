@@ -9,7 +9,7 @@
     <HBox>
         <TextField text = "" fx:id="pathField" editable="false" HBox.hgrow="ALWAYS" visible="false"  />
         <padding>
-            <Insets bottom="5.0" left="5.0"/>
+            <Insets bottom="5.0" top="5.0"/>
         </padding>
     </HBox>
     <TableView fx:id="filesTable" VBox.vgrow="ALWAYS" visible="false" />

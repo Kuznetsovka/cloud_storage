@@ -18,9 +18,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAction, Config {
-
-    private int loginLength;
-
     public enum State {
         LOGIN_LENGTH,LOGIN,IDLE, NAME_LENGTH, NAME, FILE_LENGTH, FILE,UPDATE
     }
@@ -32,6 +29,7 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
     private long receivedFileLength;
     private BufferedOutputStream out;
     private String fileName;
+    private int loginLength;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -98,9 +96,7 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
 
     private void writeFileList(ChannelHandlerContext ctx, Path p) {
         try {
-
             List<FileInfo> userPath = Files.list (p).map (path -> new FileInfo (path)).collect (Collectors.toList ());
-
             ByteBuf buf = ByteBufAllocator.DEFAULT.directBuffer (1);
             buf.writeByte (SIGNAL_UPDATE);
             ctx.write (buf);
@@ -120,11 +116,9 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
             currentState = State.IDLE;
             userPath.clear ();
             ctx.pipeline().removeFirst ();
-
         } catch (IOException e) {
             e.printStackTrace ();
         }
-
     }
 
     @Override

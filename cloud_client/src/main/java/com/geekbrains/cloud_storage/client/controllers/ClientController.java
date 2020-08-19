@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
+import javafx.scene.input.DragEvent;
 import lombok.Getter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,4 +30,13 @@ public class ClientController extends FileController implements Initializable {
             updateList(upperPath);
         }
     }
+
+    public void onDragDrop(DragEvent dragEvent) {
+        if(dragEvent.isDropCompleted ()){
+            Object dstPanel = dragEvent.getGestureTarget ();
+        }
+        String nameFile = (String) dragEvent.getAcceptingObject ();
+        Object srcPanel = dragEvent.getGestureSource ();
+    }
+
 }

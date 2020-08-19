@@ -64,43 +64,43 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
             buf.release();
         }
     }
-        private void readUpdate(ChannelHandlerContext ctx,Object msg){
-            if (msg instanceof FileInfo) {
-                listItem++;
-                buf.readInt();
-                listFileServer.add ((FileInfo) msg);
-                MyLogger.logInfo ("Файл [" + listItem + "] в списке update " + ((FileInfo) msg).getFilename ());
-                System.out.println ("Файл [" + listItem + "] в списке update " + ((FileInfo) msg).getFilename ());
-                if (listItem == countFileList) {
-                    listItem = 0;
-                    currentState = State.IDLE;
-                    ctx.pipeline ().removeFirst ();
-                }
-                isUpdateServer.setValue (true);
+    private void readUpdate(ChannelHandlerContext ctx,Object msg){
+        if (msg instanceof FileInfo) {
+            listItem++;
+            buf.readInt();
+            listFileServer.add ((FileInfo) msg);
+            MyLogger.logInfo ("Файл [" + listItem + "] в списке update " + ((FileInfo) msg).getFilename ());
+            System.out.println ("Файл [" + listItem + "] в списке update " + ((FileInfo) msg).getFilename ());
+            if (listItem == countFileList) {
+                listItem = 0;
+                currentState = State.IDLE;
+                ctx.pipeline ().removeFirst ();
             }
+            isUpdateServer.setValue (true);
         }
+    }
 
-        private void readInt(ChannelHandlerContext ctx,ByteBuf buf) throws IOException {
-            if (buf.readableBytes () >= 4) {
-                countFileList = buf.readInt ();
-                MyLogger.logInfo ("STATE: Count list files " + countFileList);
-                System.out.println ("STATE: Count list files " + countFileList);
-                currentState = State.UPDATE;
-                ctx.pipeline ().addFirst (new ObjectDecoder (1024 * 1024 * 100, ClassResolvers.cacheDisabled (null)));
-            }
+    private void readInt(ChannelHandlerContext ctx,ByteBuf buf) throws IOException {
+        if (buf.readableBytes () >= 4) {
+            countFileList = buf.readInt ();
+            MyLogger.logInfo ("STATE: Count list files " + countFileList);
+            System.out.println ("STATE: Count list files " + countFileList);
+            currentState = State.UPDATE;
+            ctx.pipeline ().addFirst (new ObjectDecoder (1024 * 1024 * 100, ClassResolvers.cacheDisabled (null)));
         }
+    }
 
-        @Override
-        public void readCommand(ByteBuf buf) {
-            listFileServer.clear();
-            byte readed = buf.readByte ();
-            if (readed != 15) {
-                currentState = State.LONG;
-            } else {
-                currentState = State.COUNT_LIST;
-            }
-            System.out.println (currentState);
+    @Override
+    public void readCommand(ByteBuf buf) {
+        listFileServer.clear();
+        byte readed = buf.readByte ();
+        if (readed != 15) {
+            currentState = State.LONG;
+        } else {
+            currentState = State.COUNT_LIST;
         }
+        System.out.println (currentState);
+    }
 
     @Override
     public void readLongFile(ByteBuf buf)  {
@@ -124,16 +124,16 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
     @Override
     public void writeFile(ByteBuf buf) throws IOException {
         while (buf.readableBytes() > 0) {
-                out.write (buf.readByte ());
-                receivedFileLength++;
-                if (fileLength == receivedFileLength) {
-                    currentState = State.IDLE;
-                    MyLogger.logInfo ("Файл получен.");
-                    System.out.println ("Файл получен.");
-                    isUpdateClient.setValue (true);
-                    out.close ();
-                    break;
-                }
+            out.write (buf.readByte ());
+            receivedFileLength++;
+            if (fileLength == receivedFileLength) {
+                currentState = State.IDLE;
+                MyLogger.logInfo ("Файл получен.");
+                System.out.println ("Файл получен.");
+                isUpdateClient.setValue (true);
+                out.close ();
+                break;
+            }
         }
     }
 

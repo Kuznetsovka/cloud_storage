@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<?import javafx.geometry.Insets?>
-<VBox xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.geekbrains.cloud_storage.client.controllers.ClientController">
+<VBox xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.geekbrains.cloud_storage.client.controllers.ClientController">
     <HBox>
-        <TextField fx:id="pathField" editable="false" HBox.hgrow="ALWAYS" />
+        <TextField fx:id="pathField" editable="false" HBox.hgrow="ALWAYS">
+         <HBox.margin>
+            <Insets right="5.0" />
+         </HBox.margin></TextField>
         <Button onAction="#btnPathUpAction" text="Вверх" />
         <padding>
-            <Insets bottom="5.0" left="5.0" />
+            <Insets bottom="5.0" top="5.0" />
         </padding>
     </HBox>
-    <TableView fx:id="filesTable" VBox.vgrow="ALWAYS" />
+    <TableView fx:id="filesTable" VBox.vgrow="ALWAYS" style="-fx-text-fill: black;"/>
     <padding>
         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
     </padding>
