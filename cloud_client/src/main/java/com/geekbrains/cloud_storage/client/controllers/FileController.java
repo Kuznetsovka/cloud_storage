@@ -27,8 +27,6 @@ public class FileController implements Initializable {
     @FXML
     TextField pathField;
 
-    private Controller parent;
-
     protected Path currentPath;
 
     @FXML

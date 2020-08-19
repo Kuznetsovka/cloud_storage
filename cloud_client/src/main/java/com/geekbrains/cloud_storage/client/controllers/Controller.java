@@ -15,7 +15,6 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
@@ -23,6 +22,9 @@ import java.util.concurrent.CountDownLatch;
 import static com.geekbrains.cloud_storage.client.ProtoHandlerClient.*;
 
 public class Controller implements Initializable, Config {
+
+    @FXML
+    public Cursor cursor;
     @FXML
     public VBox clientBox;
     @FXML
@@ -38,6 +40,7 @@ public class Controller implements Initializable, Config {
     public Button btnConnect;
     protected String nameFile;
     Alert noConnect = new Alert(Alert.AlertType.INFORMATION, "Нет соединения!", ButtonType.OK);
+    Alert disConnect = new Alert(Alert.AlertType.INFORMATION, "Соединение разорвано!", ButtonType.OK);
     Alert noSelect = new Alert(Alert.AlertType.INFORMATION, "Ни один файл не выбран!", ButtonType.OK);
     @FXML
     private TextField tfLogin;
@@ -188,16 +191,24 @@ public class Controller implements Initializable, Config {
 
     public void disConnect(ActionEvent actionEvent) {
         if (isConnect)
-            Network.getInstance().getCurrentChannel ().close ();
+            Network.stop ();
+        isConnect = false;
+        infoField.setText ("");
+        disConnect.show ();
         btnDisconnect.setVisible(false);
         btnConnect.setVisible (true);
     }
 
     void waitCursor(){
+        cursor = Cursor.WAIT;
         new Thread (() -> (clientPanel.filesTable.getScene().getWindow ()).getScene ().setCursor (Cursor.WAIT)).start ();
     }
 
     void notWaitCursor(){
+        cursor = Cursor.DEFAULT;
         new Thread (() -> (clientPanel.filesTable.getScene().getWindow ()).getScene ().setCursor (Cursor.DEFAULT)).start ();
+    }
+
+    public void onSeparatorMoved(MouseEvent mouseEvent) {
     }
 }

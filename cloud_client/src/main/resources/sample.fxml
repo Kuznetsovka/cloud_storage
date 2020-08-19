@@ -36,8 +36,8 @@
             <Insets bottom="5.0" />
         </padding>
       <cursor>
-         <Cursor fx:constant="DEFAULT" />
-      </cursor>
+        <Cursor fx:id="cursor" fx:constant="DEFAULT"/>
+    </cursor>
       <effect>
          <Blend />
       </effect>

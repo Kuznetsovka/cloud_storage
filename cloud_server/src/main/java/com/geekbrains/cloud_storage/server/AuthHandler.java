@@ -27,7 +27,9 @@ public class  AuthHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         SqlClient.disconnect ();
+        System.out.println ("Клиент [" + id + "] вышел!");
         clients.remove ((SocketChannel) ctx.channel());
+
     }
 
     @Override

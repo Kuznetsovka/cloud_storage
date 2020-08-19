@@ -4,10 +4,7 @@ import com.geekbrains.cloud_storage.client.controllers.Controller;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -28,7 +25,7 @@ public class Network {
         return ourInstance;
     }
 
-    private Channel currentChannel;
+    private static Channel currentChannel;
 
     public Channel getCurrentChannel() {
         return currentChannel;
@@ -51,6 +48,7 @@ public class Network {
                             controller.setConnect(isConnect);
                             currentChannel = socketChannel;
                         }
+
                     });
             ChannelFuture channelFuture = clientBootstrap.connect().sync();
             authorize (login, password,currentChannel);
@@ -64,6 +62,7 @@ public class Network {
             return;
         } finally {
             try {
+                stop();
                 group.shutdownGracefully().sync();
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -86,7 +85,7 @@ public class Network {
         channel.writeAndFlush (buf);
     }
 
-    public void stop() {
+    public static void stop() {
         currentChannel.close();
     }
 }

@@ -22,20 +22,19 @@ public class ProtoServer {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
+                    .childOption(ChannelOption.SO_KEEPALIVE, true)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-                            System.out.println ("Клиент вышел");
-                        }
-
                         @Override
                         public void initChannel(SocketChannel ch) {
                             ch.pipeline().addLast(new AuthHandler (), new ProtoHandlerServer ());
                         }
-                    });
+                    })
+                    .childOption(ChannelOption.SO_KEEPALIVE, true);;
             System.out.println("Сервер запущен");
             f = b.bind(8189).sync();
             f.channel().closeFuture().sync();
+        } catch (Exception e){
+            e.getStackTrace ();
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
