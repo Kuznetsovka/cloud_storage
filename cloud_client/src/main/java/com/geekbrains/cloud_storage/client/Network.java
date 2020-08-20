@@ -66,6 +66,7 @@ public class Network {
             controller.setConnect (isConnect);
         } finally {
             try {
+                controller.clearServerPanel();
                 stop();
                 group.shutdownGracefully().sync();
             } catch (InterruptedException e) {
@@ -91,8 +92,6 @@ public class Network {
 
     public static void stop() {
         System.out.println ("Соединение разорвано");
-        listFileServer.clear();
-        isUpdateServer.setValue (true);
         currentChannel.close();
     }
 }

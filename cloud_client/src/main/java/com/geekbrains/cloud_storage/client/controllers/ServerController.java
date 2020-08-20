@@ -27,6 +27,13 @@ public class ServerController extends FileController implements Initializable, C
         super();
     }
 
+    public void clearListServer() {
+        if (filesTable.isVisible ())
+            filesTable.getItems ().clear ();
+        filesTable.setVisible (false);
+    }
+
+
     public void updateListServer(List<FileInfo> list) {
         filesTable.setVisible (true);
         if (!list.isEmpty ()) {

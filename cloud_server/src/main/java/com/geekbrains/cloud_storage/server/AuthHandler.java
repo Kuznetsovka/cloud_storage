@@ -13,8 +13,6 @@ public class  AuthHandler extends ChannelInboundHandlerAdapter {
     private boolean authOk = false;
     private int nextLength;
     private String str;
-    private String login;
-    private String password;
 
     private static ConcurrentLinkedDeque<SocketChannel> clients = new ConcurrentLinkedDeque<> ();
     private int id;
@@ -28,8 +26,13 @@ public class  AuthHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         SqlClient.disconnect ();
-        MyLogger.logInfo ("Клиент [" + id + "] вышел!");
-        System.out.println ("Клиент [" + id + "] вышел!");
+        if (id!=0) {
+            MyLogger.logInfo ("Клиент [" + id + "] вышел!");
+            System.out.println ("Клиент [" + id + "] вышел!");
+        } else {
+            MyLogger.logInfo ("Клиент не найдет в базе!");
+            System.out.println ("Клиент не найдет в базе!");
+        }
         clients.remove ((SocketChannel) ctx.channel());
 
     }
@@ -37,7 +40,7 @@ public class  AuthHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg){
         ByteBuf buf = ((ByteBuf) msg);
-        if (authOk==true){
+        if (authOk){
             ctx.fireChannelRead (buf);
             return;
         }
@@ -51,18 +54,19 @@ public class  AuthHandler extends ChannelInboundHandlerAdapter {
         }
         // #auth login password
         if (str.split(" ")[0].equals("#auth")) {
-            login = str.split(" ")[1];
+            String login = str.split (" ")[1];
+            String password = str.split (" ")[2];
+            id = SqlClient.getIdUser (login, password);
+            if (id==0){
+                closeChannel (ctx);
+                return;
+            }
             buf = ByteBufAllocator.DEFAULT.directBuffer (4);
             buf.writeInt (login.length ());
             ctx.fireChannelRead (buf);
             buf = ByteBufAllocator.DEFAULT.directBuffer (login.length ());
             buf.writeBytes (login.getBytes (StandardCharsets.UTF_8));
             ctx.fireChannelRead (buf);
-            password = str.split(" ")[2];
-            id = SqlClient.getIdUser (login, password);
-            if (id==0){
-                closeChannel (ctx);
-            }
             MyLogger.logInfo ("Подключился клиент id = " + id);
             System.out.println("Подключился клиент id = " + id);
             authOk = true;

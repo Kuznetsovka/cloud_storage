@@ -96,7 +96,7 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
 
     private void writeFileList(ChannelHandlerContext ctx, Path p) {
         try {
-            List<FileInfo> userPath = Files.list (p).map (path -> new FileInfo (path)).collect (Collectors.toList ());
+            List<FileInfo> userPath = Files.list (p).map (FileInfo::new).collect (Collectors.toList ());
             ByteBuf buf = ByteBufAllocator.DEFAULT.directBuffer (1);
             buf.writeByte (SIGNAL_UPDATE);
             ctx.write (buf);

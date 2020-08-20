@@ -83,8 +83,8 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
     private void readInt(ChannelHandlerContext ctx,ByteBuf buf) throws IOException {
         if (buf.readableBytes () >= 4) {
             countFileList = buf.readInt ();
-            MyLogger.logInfo ("STATE: Count list files " + countFileList);
-            System.out.println ("STATE: Count list files " + countFileList);
+            MyLogger.logInfo ("Статус: Длина строки файла " + countFileList);
+            System.out.println ("STATE:  Длина строки файла " + countFileList);
             currentState = State.UPDATE;
             ctx.pipeline ().addFirst (new ObjectDecoder (1024 * 1024 * 100, ClassResolvers.cacheDisabled (null)));
         }
@@ -106,8 +106,8 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
     public void readLongFile(ByteBuf buf)  {
         if (buf.readableBytes() >= 8) {
             fileLength = buf.readLong();
-            MyLogger.logInfo ("STATE: File length received - " + fileLength);
-            System.out.println("STATE: File length received - " + fileLength);
+            MyLogger.logInfo ("Статус: Размер файла - " + fileLength);
+            System.out.println("Статус: Размер файла - " + fileLength);
             currentState = State.FILE;
             receivedFileLength = 0L;
         }

@@ -13,6 +13,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.net.URL;
@@ -21,7 +22,9 @@ import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 
 import static com.geekbrains.cloud_storage.client.ProtoHandlerClient.*;
+import static javafx.application.Platform.runLater;
 
+@Getter
 public class Controller implements Initializable, Config {
 
     @FXML
@@ -56,7 +59,7 @@ public class Controller implements Initializable, Config {
     @FXML
     private Button btnDisconnect;
     ClientController clientPanel;
-    ServerController serverPanel;
+    public ServerController serverPanel;
     public static boolean busy = false;
 
     @Override
@@ -195,13 +198,16 @@ public class Controller implements Initializable, Config {
     }
 
     public void disConnect(ActionEvent actionEvent) {
-        if (isConnect)
-            Network.stop ();
-        isConnect = false;
+
         infoField.setText ("");
         disConnect.show ();
+        serverPanel.clearListServer ();
         btnDisconnect.setVisible(false);
         btnConnect.setVisible (true);
+        if (isConnect) {
+            Network.stop ();
+            isConnect = false;
+        }
     }
 
     void waitCursor(){
@@ -228,5 +234,14 @@ public class Controller implements Initializable, Config {
 
     public void onEnter(MouseEvent mouseEvent) {
 
+    }
+
+    public void clearServerPanel() {
+        new Thread (()-> runLater(() -> {
+            btnDisconnect.setVisible (false);
+            btnConnect.setVisible (true);
+            serverPanel.clearListServer ();
+            infoField.setText ("");
+        })).start();
     }
 }
