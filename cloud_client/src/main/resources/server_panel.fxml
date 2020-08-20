@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<VBox xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.geekbrains.cloud_storage.client.controllers.ServerController">
+    <HBox>
+        <TextField text = "" fx:id="pathField" editable="false" HBox.hgrow="ALWAYS" visible="false"  />
+        <padding>
+            <Insets bottom="5.0" top="5.0"/>
+        </padding>
+    </HBox>
+    <TableView fx:id="filesTable" VBox.vgrow="ALWAYS" visible="false" />
+    <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+    </padding>
+    <properties>
+        <ctrl><fx:reference source="controller"/></ctrl>
+    </properties>
+</VBox>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="center" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.geekbrains.cloud_storage.client.controllers.Controller">
+    <MenuBar fx:id="menuBar">
+        <Menu fx:id="textMenuBar" text="Программа">
+            <MenuItem  fx:id="closeMenu" onAction="#exitAction" text="Выйти из программы" />
+        </Menu>
+    </MenuBar>
+    <HBox VBox.vgrow="ALWAYS">
+        <VBox HBox.hgrow="ALWAYS">
+            <fx:include fx:id="clientBox" source="client_panel.fxml" onDragDropped="#onDragDrop" HBox.hgrow="ALWAYS" />
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+        </VBox>
+      <Separator orientation="VERTICAL" prefHeight="350.0" prefWidth="0.0" onMouseMoved="#onSeparatorMoved">
+         <cursor>
+            <Cursor fx:constant="E_RESIZE" />
+         </cursor>
+      </Separator>
+        <VBox HBox.hgrow="ALWAYS">
+            <fx:include fx:id="serverBox" source="server_panel.fxml" onDragDropped="#onDragDrop" HBox.hgrow="ALWAYS" />
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+        </VBox>
+        <padding>
+            <Insets bottom="5.0" />
+        </padding>
+      <effect>
+         <Blend />
+      </effect>
+    </HBox>
+    <HBox HBox.hgrow="ALWAYS">
+        <VBox HBox.hgrow="ALWAYS">
+        <Button fx:id="btnUpload" focusTraversable="false" onAction="#upload" prefHeight="25.0" text="Upload" />
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+        </VBox>
+        <VBox HBox.hgrow="ALWAYS">
+        <Button fx:id="btnDownload" focusTraversable="false" onAction="#download" prefHeight="25.0" text="Download" />
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+        </VBox>
+        <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+        </padding>
+    </HBox>
+    <HBox spacing="5.0" visible="true">
+        <HBox spacing="5.0" visible="true" VBox.vgrow="ALWAYS">
+                <Button fx:id="btnConnect" focusTraversable="false" onAction="#connect" text="Connect" HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnDisconnect" focusTraversable="false" onAction="#disConnect" text="Disconnect" visible="false" HBox.hgrow="ALWAYS" />
+                <Label fx:id="lbLogin" text="Логин" visible="true" />
+                <TextField fx:id="tfLogin" onMousePressed="#clear" text="Kirill" visible="true" />
+                <Label fx:id="lbLassword" text="Пароль" visible="true" />
+                <TextField fx:id="tfPassword" onMousePressed="#clear" text="123456" visible="true" />
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+        </HBox>
+        <HBox spacing="5.0" visible="true" VBox.vgrow="ALWAYS">
+            <Label fx:id="infoField" text="" visible="true" />
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+        </HBox>
+        <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+        </padding>
+        <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+        </padding>
+    </HBox>
+        <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+        </padding>
+    <properties>
+        <ctrl><fx:reference source="controller"/></ctrl>
+    </properties>
+</VBox>
