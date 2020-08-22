@@ -43,7 +43,7 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
                     readLogin (ctx,buf);
                     break;
                 case IDLE:
-                    readCommand (buf);
+                    readCommand (ctx,buf);
                     break;
                 case NAME_LENGTH:
                     readLengthNameFile (buf);
@@ -99,13 +99,10 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
             List<FileInfo> userPath = Files.list (p).map (FileInfo::new).collect (Collectors.toList ());
             ByteBuf buf = ByteBufAllocator.DEFAULT.directBuffer (1);
             buf.writeByte (SIGNAL_UPDATE);
-            ctx.write (buf);
-            ctx.flush ();
-
+            ctx.writeAndFlush (buf);
             buf = ByteBufAllocator.DEFAULT.directBuffer (userPath.size ());
             buf.writeInt (userPath.size ());
-            ctx.write (buf);
-            ctx.flush ();
+            ctx.writeAndFlush (buf);
 
             ctx.pipeline().addFirst (new ObjectEncoder ());
             for (FileInfo fileInfo : userPath) {
@@ -121,7 +118,6 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
         }
     }
 
-    @Override
     public void writeFile(ByteBuf buf) throws IOException {
         while (buf.readableBytes() > 0) {
             out.write(buf.readByte());
@@ -136,7 +132,6 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
         }
     }
 
-    @Override
     public void readLongFile(ByteBuf buf) {
         if (command==SIGNAL_UPLOAD){
             if (buf.readableBytes() >= 8) {
@@ -148,7 +143,6 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
         }
     }
 
-    @Override
     public boolean readNameFile(ChannelHandlerContext ctx, ByteBuf buf) throws IOException {
         if (buf.readableBytes() >= nextLength) {
             byte[] fileNameByte = new byte[nextLength];
@@ -171,7 +165,6 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
         return false;
     }
 
-    @Override
     public void readLengthNameFile(ByteBuf buf) {
         if (buf.readableBytes() >= 4) {
             nextLength = buf.readInt();
@@ -181,8 +174,7 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
         }
     }
 
-    @Override
-    public void readCommand(ByteBuf buf) {
+    public void readCommand(ChannelHandlerContext ctx, ByteBuf buf) {
         byte readed = buf.readByte();
         if (readed == SIGNAL_UPLOAD ||readed == SIGNAL_DOWNLOAD) {
             command = (readed == SIGNAL_UPLOAD)?SIGNAL_UPLOAD:SIGNAL_DOWNLOAD;
@@ -190,8 +182,8 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
             receivedFileLength = 0L;
             System.out.println("Статус: " + ((command == SIGNAL_UPLOAD)?"UPLOAD":"DOWNLOAD"));
         } else if (readed == SIGNAL_UPDATE) {
-            currentState = State.UPDATE;
             System.out.println("STATE: UPDATE");
+            writeFileList (ctx,Paths.get (PATH_SERVER, login));
         } else {
             MyLogger.logError ("Ошибка: Не верный сигнальный байт - " + readed);
             System.out.println("Ошибка: Не верный сигнальный байт - " + readed);

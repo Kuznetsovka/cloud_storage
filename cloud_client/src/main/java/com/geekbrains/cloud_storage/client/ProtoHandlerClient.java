@@ -1,13 +1,12 @@
 package com.geekbrains.cloud_storage.client;
 
+import com.geekbrains.cloud_storage.client.controllers.Controller;
 import com.geekbrains.common_files.common.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 
 import java.io.*;
 import java.nio.file.Paths;
@@ -16,10 +15,10 @@ import java.util.List;
 
 import static com.geekbrains.cloud_storage.client.controllers.Controller.clientFilesPath;
 
-public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements ProtoAction {
+public class ProtoHandlerClient extends ChannelInboundHandlerAdapter {
 
     private String nameFile;
-    public static List<FileInfo> listFileServer = new ArrayList<> ();
+    public volatile static List<FileInfo> listFileServer = new ArrayList<> ();
     private int countFileList;
     private int listItem;
     private State currentState = State.IDLE;
@@ -27,8 +26,11 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
     private long receivedFileLength;
     private BufferedOutputStream out;
     private ByteBuf buf;
-    public static BooleanProperty isUpdateServer = new SimpleBooleanProperty ();
-    public static BooleanProperty isUpdateClient = new SimpleBooleanProperty ();
+    private Controller controller;
+
+    public ProtoHandlerClient(Controller controller) {
+        this.controller = controller;
+    }
 
     public enum State {
         IDLE,COUNT_LIST,UPDATE,LONG, FILE
@@ -76,7 +78,7 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
                 currentState = State.IDLE;
                 ctx.pipeline ().removeFirst ();
             }
-            isUpdateServer.setValue (true);
+            controller.isUpdateServer.setValue (true);
         }
     }
 
@@ -84,13 +86,12 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
         if (buf.readableBytes () >= 4) {
             countFileList = buf.readInt ();
             MyLogger.logInfo ("Статус: Длина строки файла " + countFileList);
-            System.out.println ("STATE:  Длина строки файла " + countFileList);
-            currentState = State.UPDATE;
+            System.out.println ("Статус:  Длина строки файла " + countFileList);
             ctx.pipeline ().addFirst (new ObjectDecoder (1024 * 1024 * 100, ClassResolvers.cacheDisabled (null)));
+            currentState = State.UPDATE;
         }
     }
 
-    @Override
     public void readCommand(ByteBuf buf) {
         listFileServer.clear();
         byte readed = buf.readByte ();
@@ -102,7 +103,6 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
         System.out.println (currentState);
     }
 
-    @Override
     public void readLongFile(ByteBuf buf)  {
         if (buf.readableBytes() >= 8) {
             fileLength = buf.readLong();
@@ -121,7 +121,6 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
         }
     }
 
-    @Override
     public void writeFile(ByteBuf buf) throws IOException {
         while (buf.readableBytes() > 0) {
             out.write (buf.readByte ());
@@ -130,7 +129,7 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
                 currentState = State.IDLE;
                 MyLogger.logInfo ("Файл получен.");
                 System.out.println ("Файл получен.");
-                isUpdateClient.setValue (true);
+                controller.isUpdateClient.setValue (true);
                 out.close ();
                 break;
             }
@@ -141,21 +140,6 @@ public class ProtoHandlerClient extends ChannelInboundHandlerAdapter implements 
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
         ctx.close();
-    }
-
-    /****
-     *
-     * @param buf
-     */
-
-    @Override
-    public boolean readNameFile(ChannelHandlerContext ctx, ByteBuf buf){
-        return false;
-    }
-
-    @Override
-    public void readLengthNameFile(ByteBuf buf) {
-
     }
 
     public void setFileName(String s){

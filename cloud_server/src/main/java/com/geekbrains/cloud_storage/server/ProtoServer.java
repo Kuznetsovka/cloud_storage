@@ -33,6 +33,9 @@ public class ProtoServer {
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             MyLogger.logInfo ("Сервер запущен");
             System.out.println("Сервер запущен");
+            SqlClient.connect(SqlClient.Type.SQLite);
+            MyLogger.logInfo ("Соединение с базой установлено");
+            System.out.println("Соединение с базой установлено");
             f = b.bind(8189).sync();
             f.channel().closeFuture().sync();
         } catch (Exception e){

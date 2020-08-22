@@ -19,11 +19,8 @@ public class ProtoFileSender implements Config {
 
         if (sender == SENDER.CLIENT) {
             byte[] filenameBytes = path.getFileName ().toString ().getBytes (StandardCharsets.UTF_8);
-            buf = ByteBufAllocator.DEFAULT.directBuffer (4);
+            buf = ByteBufAllocator.DEFAULT.directBuffer (256);
             buf.writeInt (filenameBytes.length);
-            channel.writeAndFlush (buf);
-
-            buf = ByteBufAllocator.DEFAULT.directBuffer (filenameBytes.length);
             buf.writeBytes (filenameBytes);
             channel.writeAndFlush (buf);
         }

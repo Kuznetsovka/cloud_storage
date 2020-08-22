@@ -10,8 +10,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class  AuthHandler extends ChannelInboundHandlerAdapter {
+    public enum State {
+        AUTH_LENGTH,AUTH,AUTH_STR
+    }
     private boolean authOk = false;
     private int nextLength;
+    private State currentState = State.AUTH_LENGTH;
     private String str;
 
     private static ConcurrentLinkedDeque<SocketChannel> clients = new ConcurrentLinkedDeque<> ();
@@ -19,7 +23,6 @@ public class  AuthHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        SqlClient.connect(SqlClient.Type.SQLite);
         clients.add((SocketChannel) ctx.channel());
     }
 
@@ -40,19 +43,48 @@ public class  AuthHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg){
         ByteBuf buf = ((ByteBuf) msg);
-        if (authOk){
+        if (authOk) {
             ctx.fireChannelRead (buf);
             return;
         }
+        while (buf.readableBytes() > 0 || !authOk) {
+            switch (currentState) {
+                case AUTH_LENGTH:
+                    readLengthStr (buf);
+                    break;
+                case AUTH_STR:
+                    readAuthStr (buf);
+                    break;
+                case AUTH:
+                    auth (ctx);
+                    break;
+            }
+        }
+        if (buf.readableBytes () == 0) {
+            buf.release ();
+        }
+    }
+
+    private void readLengthStr(ByteBuf buf) {
         if (buf.readableBytes() >= 4) {
             nextLength = buf.readInt();
+            currentState = State.AUTH_STR;
         }
+        System.out.println (nextLength);
+    }
+
+    private void readAuthStr(ByteBuf buf) {
         if (buf.readableBytes() >= nextLength) {
             byte[] fileNameByte = new byte[nextLength];
             buf.readBytes(fileNameByte);
             str = new String(fileNameByte, StandardCharsets.UTF_8);
+            currentState = State.AUTH;
         }
-        // #auth login password
+        System.out.println (str);
+    }
+
+    private void auth(ChannelHandlerContext ctx) {
+        ByteBuf buf;// #auth login password
         if (str.split(" ")[0].equals("#auth")) {
             String login = str.split (" ")[1];
             String password = str.split (" ")[2];
