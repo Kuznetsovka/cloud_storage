@@ -87,8 +87,10 @@ public class Network {
     }
 
     public void stop() {
-        System.out.println ("Соединение разорвано");
-        controller.setConnect (false);
-        currentChannel.close();
+        if (currentChannel.isOpen ()) {
+            System.out.println ("Соединение разорвано");
+            controller.setConnect (false);
+            currentChannel.close ();
+        }
     }
 }
