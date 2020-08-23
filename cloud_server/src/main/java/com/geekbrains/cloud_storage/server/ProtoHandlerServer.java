@@ -97,6 +97,7 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
     private void writeFileList(ChannelHandlerContext ctx, Path p) {
         try {
             List<FileInfo> userPath = Files.list (p).map (FileInfo::new).collect (Collectors.toList ());
+            System.out.println ("Write file list!");
             ByteBuf buf = ByteBufAllocator.DEFAULT.directBuffer (1);
             buf.writeByte (SIGNAL_UPDATE);
             ctx.writeAndFlush (buf);
@@ -106,10 +107,9 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
 
             ctx.pipeline().addFirst (new ObjectEncoder ());
             for (FileInfo fileInfo : userPath) {
-                ctx.write(fileInfo);
+                ctx.writeAndFlush (fileInfo);
                 System.out.println (fileInfo.getFilename ());
             }
-            ctx.flush ();
             currentState = State.IDLE;
             userPath.clear ();
             ctx.pipeline().removeFirst ();
@@ -183,7 +183,7 @@ class ProtoHandlerServer extends ChannelInboundHandlerAdapter implements ProtoAc
             System.out.println("Статус: " + ((command == SIGNAL_UPLOAD)?"UPLOAD":"DOWNLOAD"));
         } else if (readed == SIGNAL_UPDATE) {
             System.out.println("STATE: UPDATE");
-            writeFileList (ctx,Paths.get (PATH_SERVER, login));
+            currentState = State.UPDATE;
         } else {
             MyLogger.logError ("Ошибка: Не верный сигнальный байт - " + readed);
             System.out.println("Ошибка: Не верный сигнальный байт - " + readed);
