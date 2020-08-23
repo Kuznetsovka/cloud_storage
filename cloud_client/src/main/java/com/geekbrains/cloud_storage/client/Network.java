@@ -9,13 +9,11 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import javafx.application.Platform;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
-
-import static com.geekbrains.cloud_storage.client.ProtoHandlerClient.isUpdateServer;
-import static com.geekbrains.cloud_storage.client.ProtoHandlerClient.listFileServer;
 
 public class Network {
     private static ProtoHandlerClient handle;
@@ -29,17 +27,20 @@ public class Network {
         return ourInstance;
     }
 
-    private static Channel currentChannel;
+    private Channel currentChannel;
+
+    private Controller controller;
 
     public Channel getCurrentChannel() {
         return currentChannel;
     }
 
     public void start(Controller controller, CountDownLatch countDownLatch, String login, String password) {
+        this.controller = controller;
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             Bootstrap clientBootstrap = new Bootstrap();
-            handle = new ProtoHandlerClient ();
+            handle = new ProtoHandlerClient (controller);
             clientBootstrap.group(group)
                     .channel(NioSocketChannel.class)
                     .remoteAddress(new InetSocketAddress("localhost", 8189))
@@ -48,8 +49,7 @@ public class Network {
                         protected void initChannel(SocketChannel socketChannel) {
                             socketChannel.pipeline().addLast(
                                     handle);
-                            boolean isConnect = true;
-                            controller.setConnect(isConnect);
+                            controller.setConnect(true);
                             currentChannel = socketChannel;
                         }
 
@@ -62,8 +62,7 @@ public class Network {
             MyLogger.logInfo ("Нет соединения!");
             System.out.println ("Нет соединения!");
             countDownLatch.countDown ();
-            boolean isConnect = false;
-            controller.setConnect (isConnect);
+            controller.setConnect (false);
         } finally {
             try {
                 controller.clearServerPanel();
@@ -81,17 +80,17 @@ public class Network {
 
         byte[] strByte = str.getBytes (StandardCharsets.UTF_8);
 
-        buf = ByteBufAllocator.DEFAULT.directBuffer (4);
+        buf = ByteBufAllocator.DEFAULT.directBuffer (256);
         buf.writeInt (str.length ());
-        channel.writeAndFlush (buf);
-
-        buf = ByteBufAllocator.DEFAULT.directBuffer (str.length ());
         buf.writeBytes (strByte);
         channel.writeAndFlush (buf);
     }
 
-    public static void stop() {
-        System.out.println ("Соединение разорвано");
-        currentChannel.close();
+    public void stop() {
+        if (currentChannel.isOpen ()) {
+            System.out.println ("Соединение разорвано");
+            controller.setConnect (false);
+            currentChannel.close ();
+        }
     }
 }

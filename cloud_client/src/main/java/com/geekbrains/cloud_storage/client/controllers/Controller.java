@@ -5,6 +5,10 @@ import com.geekbrains.common_files.common.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -43,6 +47,8 @@ public class Controller implements Initializable, Config {
     @FXML
     public Button btnConnect;
     protected String nameFile;
+    public BooleanProperty isUpdateServer = new SimpleBooleanProperty ();
+    public BooleanProperty isUpdateClient = new SimpleBooleanProperty ();
     @FXML
     Alert noConnect = new Alert(Alert.AlertType.INFORMATION, "Нет соединения!", ButtonType.OK);
     Alert disConnect = new Alert(Alert.AlertType.INFORMATION, "Соединение разорвано!", ButtonType.OK);
@@ -55,12 +61,11 @@ public class Controller implements Initializable, Config {
 
     @FXML
     private Label infoField;
-    private boolean isConnect = false;
+    private volatile boolean isConnect = false;
     @FXML
     private Button btnDisconnect;
     ClientController clientPanel;
     public ServerController serverPanel;
-    public static boolean busy = false;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -70,17 +75,15 @@ public class Controller implements Initializable, Config {
         serverPanel = (ServerController) serverBox.getProperties().get("ctrl");
         clientFilesPath = clientPanel.pathField.getText ();
         isUpdateServer.addListener ((observable, oldValue, newValue) -> {
-            if (isUpdateServer.get ()) {
+            if (isUpdateServer.getValue ()) {
                 serverPanel.updateListServer (listFileServer);
                 isUpdateServer.setValue (false);
-                busy = false;
             }
         });
         isUpdateClient.addListener ((observable, oldValue, newValue) -> {
             if (isUpdateClient.get ()) {
                 clientPanel.updateList (Paths.get (clientFilesPath));
                 isUpdateClient.setValue (false);
-                busy = false;
             }
         });
     }
@@ -88,7 +91,7 @@ public class Controller implements Initializable, Config {
 
     public void exitAction (ActionEvent actionEvent){
         if (isConnect)
-            Network.getInstance().getCurrentChannel ().close ();
+            Network.getInstance ().stop();
         Platform.exit ();
     }
 
@@ -98,7 +101,7 @@ public class Controller implements Initializable, Config {
 
     public synchronized void connect (ActionEvent actionEvent) {
         if (!isConnect) {
-            waitCursor ();
+            //waitCursor ();
             CountDownLatch networkStarter = new CountDownLatch (1);
             new Thread (() -> Network.getInstance ().start (this, networkStarter, tfLogin.getText (),tfPassword.getText ())).start ();
             try {
@@ -107,32 +110,31 @@ public class Controller implements Initializable, Config {
                 e.printStackTrace ();
             }
             if (isConnect) {
-                infoField.setText ("Соединение установлено");
+                infoField.setText ("Соединение  с сервером установлено");
                 MyLogger.logInfo ("Соединение с сервером установлено ");
                 btnConnect.setVisible (false);
                 btnDisconnect.setVisible(true);
             } else {
                 noConnect.show ();
             }
-            notWaitCursor ();
+            //notWaitCursor ();
         }
     }
 
     public void upload(ActionEvent actionEvent) {
-        if (isConnect && !busy) {
-            busy = true;
+        if (isConnect) {
             try {
                 if(!isSelectedFile(SENDER.CLIENT)) {
                     noSelect.show ();
                     return;
                 }
-                waitCursor ();
+                //waitCursor ();
                 clientFilesPath = clientPanel.pathField.getText ();
                 nameFile = String.valueOf (clientPanel.filesTable.getSelectionModel ().getSelectedItem ().getFilename ());
                 ProtoFileSender.sendFile (Paths.get (clientFilesPath, nameFile), SENDER.CLIENT, true, Network.getInstance ().getCurrentChannel (), future -> {
                     if (!future.isSuccess ()) {
                         future.cause ().printStackTrace ();
-                        Network.stop ();
+                        Network.getInstance ().stop ();
                     }
                     if (future.isSuccess ()) {
                         ByteBuf buf = ByteBufAllocator.DEFAULT.directBuffer (1);
@@ -142,7 +144,7 @@ public class Controller implements Initializable, Config {
                         MyLogger.logInfo ("Файл успешно передан клиенту: " + tfLogin);
                     }
                 });
-                notWaitCursor ();
+                //notWaitCursor ();
             } catch (IOException e) {
                 e.printStackTrace ();
             }
@@ -152,13 +154,12 @@ public class Controller implements Initializable, Config {
     }
 
     public void download(ActionEvent actionEvent) {
-        if (isConnect && !busy) {
-            busy = true;
+        if (isConnect) {
             if(!isSelectedFile(SENDER.SERVER)) {
                 noSelect.show ();
                 return;
             }
-            waitCursor ();
+            //waitCursor ();
             clientFilesPath = clientPanel.pathField.getText ();
             nameFile = String.valueOf (serverPanel.filesTable.getSelectionModel ().getSelectedItem ().getFilename ());
             try {
@@ -166,13 +167,13 @@ public class Controller implements Initializable, Config {
                 ProtoFileSender.sendFile (Paths.get (nameFile), SENDER.CLIENT, false, Network.getInstance ().getCurrentChannel (), future -> {
                     if (!future.isSuccess ()) {
                         future.cause ().printStackTrace ();
-                        Network.stop ();
+                        Network.getInstance ().stop ();
                     }
                 });
             } catch (IOException e) {
                 e.printStackTrace ();
             }
-            notWaitCursor ();
+            //notWaitCursor ();
         } else {
             noConnect.show();
         }
@@ -198,27 +199,25 @@ public class Controller implements Initializable, Config {
     }
 
     public void disConnect(ActionEvent actionEvent) {
-
         infoField.setText ("");
         disConnect.show ();
         serverPanel.clearListServer ();
         btnDisconnect.setVisible(false);
         btnConnect.setVisible (true);
         if (isConnect) {
-            Network.stop ();
-            isConnect = false;
+            Network.getInstance ().stop();
         }
     }
 
-    void waitCursor(){
-        cursor = Cursor.WAIT;
-        new Thread (() -> (clientPanel.filesTable.getScene().getWindow ()).getScene ().setCursor (Cursor.WAIT)).start ();
-    }
-
-    void notWaitCursor(){
-        cursor = Cursor.DEFAULT;
-        new Thread (() -> (clientPanel.filesTable.getScene().getWindow ()).getScene ().setCursor (Cursor.DEFAULT)).start ();
-    }
+//    void waitCursor(){
+//        cursor = Cursor.WAIT;
+//        new Thread (() -> (clientPanel.filesTable.getScene().getWindow ()).getScene ().setCursor (Cursor.WAIT)).start ();
+//    }
+//
+//    void notWaitCursor(){
+//        cursor = Cursor.DEFAULT;
+//        new Thread (() -> (clientPanel.filesTable.getScene().getWindow ()).getScene ().setCursor (Cursor.DEFAULT)).start ();
+//    }
 
 
     public void onDragDrop(DragEvent dragEvent) {
